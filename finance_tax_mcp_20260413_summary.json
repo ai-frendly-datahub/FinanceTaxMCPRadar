@@ -1,0 +1,33 @@
+{
+  "date": "2026-04-13",
+  "category": "finance_tax_mcp",
+  "article_count": 5,
+  "source_count": 1,
+  "matched_count": 5,
+  "top_entities": [
+    {
+      "name": "MCPDomain",
+      "count": 23
+    },
+    {
+      "name": "ProjectHealth",
+      "count": 14
+    },
+    {
+      "name": "Provider",
+      "count": 6
+    },
+    {
+      "name": "Capability",
+      "count": 6
+    },
+    {
+      "name": "RiskScope",
+      "count": 4
+    }
+  ],
+  "sources": {
+    "awesome-mcp-korea Finance & Tax": 5
+  },
+  "generated_at": "2026-04-13T11:10:35.777888+09:00"
+}
