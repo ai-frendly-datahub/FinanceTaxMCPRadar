@@ -10,6 +10,7 @@ data_quality:
     dated_freshness_report_pattern: reports/finance_tax_mcp_YYYYMMDD_quality.json
     tracked_event_models:
       - mcp_directory_entry
+      - mcp_tool_result
       - linked_repository_metadata
       - risk_scope_signal
   event_models:
@@ -28,6 +29,13 @@ data_quality:
         - repository
         - archived
         - license
+    mcp_tool_result:
+      date_fields:
+        - collected_at
+      required_fields:
+        - repository
+        - tool_name
+        - source_url
     risk_scope_signal:
       date_fields:
         - collected_at
@@ -71,6 +79,125 @@ sources:
     collection_tier: "C1_static_list"
     content_type: "mcp_directory"
 
+  - id: "mcp_candidate_migusdn_kis_mcp_server"
+    name: "migusdn/KIS_MCP_Server"
+    type: "mcp_server"
+    enabled: false
+    url: "https://github.com/migusdn/KIS_MCP_Server"
+    transport: "stdio"
+    trust_tier: "T4_community"
+    collection_tier: "C4_mcp_tool"
+    content_type: "mcp_tool_result"
+    risk_scope:
+      - "external_api_key"
+      - "financial_action_possible"
+      - "network_read"
+      - "user_account_scope"
+      - "write_or_mutation_possible"
+    notes: "Activation audit applied; source remains disabled until transport smoke tests and required secrets are validated."
+    config:
+      repository: "migusdn/KIS_MCP_Server"
+      source_seed: "awesome-mcp-korea"
+      source_section: "Finance & Tax"
+      activation_status: "blocked_command_unresolved"
+      activation_audited_at: "2026-04-14T01:55:57.420863+00:00"
+      metadata_checked_at: "2026-04-14T01:30:44.113793+00:00"
+      github_archived: false
+      github_disabled: false
+      github_license: "MIT"
+      github_pushed_at: "2025-06-22T14:27:53Z"
+      github_default_branch: "master"
+      github_stars: 17
+      command: ""
+      args:
+        []
+      env:
+        - "FID_COND_MRKT_DIV_CODE"
+        - "FID_INPUT_DATE_1"
+        - "FID_INPUT_DATE_2"
+        - "FID_INPUT_ISCD"
+        - "FID_ORG_ADJ_PRC"
+        - "FID_PERIOD_DIV_CODE"
+        - "HASHKEY_PATH"
+        - "KIS_APP_KEY"
+        - "KIS_APP_SECRET"
+        - "TOKEN_FILE"
+        - "TOKEN_PATH"
+        - "TR_ID"
+      tools:
+        - "inquery-balance"
+        - "inquery-order-detail"
+        - "inquery-order-list"
+        - "inquery-overseas-stock-price"
+        - "inquery-stock-ask"
+        - "inquery-stock-history"
+        - "inquery-stock-info"
+        - "inquery-stock-price"
+        - "order-overseas-stock"
+        - "order-stock"
+      resources: []
+      timeout_seconds: 20
+      max_items: 50
+      activation_gates:
+        - "risk_scope_review_required"
+        - "env_secret_documentation_required"
+        - "command_or_endpoint_unresolved"
+        - "registry_crosscheck_required"
+        - "fake_transport_smoke_test_required"
+
+
+  - id: "mcp_candidate_mrbaeksang_korea_stock_analyzer_mcp"
+    name: "Mrbaeksang/korea-stock-analyzer-mcp"
+    type: "mcp_server"
+    enabled: false
+    url: "https://github.com/Mrbaeksang/korea-stock-analyzer-mcp"
+    transport: "stdio"
+    trust_tier: "T4_community"
+    collection_tier: "C4_mcp_tool"
+    content_type: "mcp_tool_result"
+    risk_scope:
+      - "financial_market_signal"
+      - "network_read"
+    notes: "Disabled after repeated stdio initialize timeouts on 2026-04-24; keep as a monitored candidate until upstream startup behavior is stable again."
+    config:
+      repository: "Mrbaeksang/korea-stock-analyzer-mcp"
+      source_seed: "awesome-mcp-korea"
+      source_section: "Finance & Tax"
+      activation_status: "blocked_runtime_timeout"
+      activation_audited_at: "2026-04-24T00:00:00+00:00"
+      real_transport_smoke_tested_at: "2026-04-14T04:19:00+00:00"
+      runtime_timeout_confirmed_at: "2026-04-24T00:00:00+00:00"
+      metadata_checked_at: "2026-04-14T01:30:44.113793+00:00"
+      github_archived: false
+      github_disabled: false
+      github_license: "MIT"
+      github_pushed_at: "2025-09-20T08:53:44Z"
+      github_default_branch: "main"
+      github_stars: 13
+      command: "npx"
+      args:
+        - "-y"
+        - "@mrbaeksang/korea-stock-analyzer-mcp"
+      env:
+        []
+      tools:
+        - name: "search_news"
+          arguments:
+            company_name: "Samsung Electronics"
+            ticker: "005930"
+            limit: 3
+      resources: []
+      timeout_seconds: 20
+      max_items: 5
+      event_model: "mcp_tool_result"
+      freshness_sla_days: 1
+      activation_gates:
+        - "risk_scope_review_required"
+        - "registry_crosscheck_required"
+        - "production_monitoring_required"
+        - "reliable_stdio_initialize_required"
+        - "upstream_startup_regression_review_required"
+
 entities:
   - name: "MCPDomain"
     display_name: "MCP 도메인"
@@ -80,6 +207,10 @@ entities:
       - "tax"
       - "stock"
       - "stocks"
+      - "stock market"
+      - "Korean stock"
+      - "AI 반도체"
+      - "반도체"
       - "cryptocurrency"
       - "한국투자증권"
       - "주식"
@@ -100,6 +231,8 @@ entities:
       - "dooray"
       - "naver works"
       - "tourapi"
+      - "Samsung"
+      - "Samsung Electronics"
       - "한국투자증권"
       - "네이버"
       - "카카오"
@@ -109,6 +242,8 @@ entities:
     display_name: "도구 기능"
     keywords:
       - "search"
+      - "search_news"
+      - "news"
       - "lookup"
       - "analysis"
       - "analyze"
@@ -125,6 +260,10 @@ entities:
       - "일정"
       - "파싱"
       - "길찾기"
+      - "뉴스"
+      - "시장 전망"
+      - "실적"
+      - "순매수"
   - name: "RiskScope"
     display_name: "리스크 범위"
     keywords:
@@ -132,6 +271,8 @@ entities:
       - "rest api"
       - "api key"
       - "credential"
+      - "financial_market_signal"
+      - "market signal"
       - "order"
       - "message"
       - "calendar"
@@ -143,6 +284,7 @@ entities:
       - "위치"
       - "문서"
       - "개인정보"
+      - "시장 전망"
   - name: "ProjectHealth"
     display_name: "프로젝트 상태"
     keywords:

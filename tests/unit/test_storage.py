@@ -21,6 +21,7 @@ class _Article(Protocol):
     category: str
     matched_entities: dict[str, list[str]]
     collected_at: datetime | None
+    ontology: dict[str, object]
 
 
 class _ArticleCtor(Protocol):
@@ -35,6 +36,7 @@ class _ArticleCtor(Protocol):
         category: str,
         matched_entities: dict[str, list[str]] = ...,
         collected_at: datetime | None = ...,
+        ontology: dict[str, object] = ...,
     ) -> _Article: ...
 
 
@@ -43,6 +45,10 @@ class _RadarStorage(Protocol):
 
     def recent_articles(
         self, category: str, *, days: int = 7, limit: int = 200
+    ) -> list[_Article]: ...
+
+    def recent_articles_by_collected_at(
+        self, category: str, *, days: int = 7, limit: int = 500
     ) -> list[_Article]: ...
 
     def delete_older_than(self, days: int) -> int: ...
@@ -67,6 +73,7 @@ def _make_article(
     source: str = "Example RSS",
     category: str = "tech",
     matched_entities: dict[str, list[str]] | None = None,
+    ontology: dict[str, object] | None = None,
 ) -> _Article:
     return Article(
         title=title,
@@ -76,6 +83,7 @@ def _make_article(
         source=source,
         category=category,
         matched_entities=matched_entities or {},
+        ontology=ontology or {},
     )
 
 
@@ -268,6 +276,26 @@ def test_recent_articles_filters_by_category(tmp_storage: object) -> None:
     assert policy_results[0].category == "policy"
 
 
+def test_recent_articles_by_collected_at_includes_old_published_article(
+    tmp_storage: object,
+) -> None:
+    storage = cast(_RadarStorage, tmp_storage)
+    article = _make_article(
+        title="Old published, newly collected",
+        link="https://example.com/newly-collected",
+        summary="collected_at should drive quality window",
+        published=datetime.now(UTC) - timedelta(days=45),
+    )
+
+    storage.upsert_articles([article])
+    published_window_results = storage.recent_articles(category="tech", days=7)
+    collected_window_results = storage.recent_articles_by_collected_at(category="tech", days=7)
+
+    assert published_window_results == []
+    assert len(collected_window_results) == 1
+    assert collected_window_results[0].link == article.link
+
+
 def test_delete_older_than_preserves_recent_articles(tmp_storage: object) -> None:
     storage = cast(_RadarStorage, tmp_storage)
     recent_article = _make_article(
@@ -318,3 +346,28 @@ def test_storage_close_then_reuse_raises_error(tmp_duckdb: Path) -> None:
                 )
             ]
         )
+
+
+def test_recent_articles_restores_ontology_metadata(tmp_storage: object) -> None:
+    storage = cast(_RadarStorage, tmp_storage)
+    article = _make_article(
+        title="Ontology",
+        link="https://example.com/ontology",
+        summary="ontology metadata",
+        published=datetime.now(UTC),
+        ontology={
+            "repo": "FinanceTaxMCPRadar",
+            "event_model_id": "mcp.mcp_tool_result",
+            "source_role_id": "capability_seed",
+        },
+    )
+
+    storage.upsert_articles([article])
+    results = storage.recent_articles(category="tech", days=30)
+
+    assert len(results) == 1
+    assert results[0].ontology == {
+        "repo": "FinanceTaxMCPRadar",
+        "event_model_id": "mcp.mcp_tool_result",
+        "source_role_id": "capability_seed",
+    }

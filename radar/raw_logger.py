@@ -50,6 +50,8 @@ class RawLogger:
                     "matched_entities": article.matched_entities,
                     "logged_at": now.isoformat(),
                 }
+                if article.ontology:
+                    record["ontology"] = article.ontology
                 handle.write(json.dumps(record, ensure_ascii=False))
                 handle.write("\n")
                 if run_id is not None:
