@@ -20,6 +20,14 @@ def _seed_source(category):
     return seeds[0]
 
 
+def _mcp_source(category, repository: str):
+    return next(
+        source
+        for source in category.sources
+        if source.type == "mcp_server" and source.config.get("repository") == repository
+    )
+
+
 def test_mcp_category_config_uses_readme_section_source() -> None:
     category = load_category_config(_category_name())
 
@@ -84,6 +92,7 @@ def test_mcp_server_sources_are_activation_gated() -> None:
         "blocked_tool_allowlist_unresolved",
         "candidate_ready_for_fake_transport_test",
         "fake_transport_smoke_test_passed",
+        "permanently_disabled_runtime_unstable",
         "real_transport_smoke_test_passed",
     }
     for source in candidates:
@@ -93,6 +102,24 @@ def test_mcp_server_sources_are_activation_gated() -> None:
         assert source.config["repository"]
         assert isinstance(source.config.get("tools", []), list)
         assert isinstance(source.config.get("resources", []), list)
+        assert source.config["docs_advisory_audit_status"] == "passed"
+        assert (
+            source.config["docs_advisory_audit_artifact"]
+            == "_workspace/2026-04-30_cycle69_mcp_docs_advisory_audit.json"
+        )
+        assert source.config["github_readme_present"] is True
+        assert source.config["github_docs_present"] is True
+        assert source.config["github_docs_paths"]
+        assert source.config["github_security_advisory_access_status"].startswith("checked")
+        assert source.config["github_security_advisory_count"] >= 0
+        if source.config.get("command_discovery_status"):
+            assert source.config["command_discovery_checked_at"]
+            assert (
+                source.config["command_discovery_artifact"]
+                == "_workspace/2026-04-30_cycle71_mcp_command_discovery_audit.json"
+            )
+        if "command_or_endpoint_unresolved" in source.config.get("activation_gates", []):
+            assert source.config["command_discovery_status"]
         if source.enabled:
             assert source.config["activation_status"] == "real_transport_smoke_test_passed"
             assert source.config["command"]
@@ -104,7 +131,11 @@ def test_mcp_server_sources_are_activation_gated() -> None:
             assert source.config["activation_status"] != "real_transport_smoke_test_passed"
         if source.config["activation_status"] != "metadata_only":
             assert source.config["activation_audited_at"]
-            assert source.config["activation_gates"]
+            if source.config["activation_status"].startswith("permanently_disabled_"):
+                assert source.config["disabled_reason"]
+                assert source.config["activation_gates"] == []
+            else:
+                assert source.config["activation_gates"]
 
 
 def test_mcp_category_quality_config_tracks_mcp_event_models() -> None:
@@ -119,3 +150,93 @@ def test_mcp_category_quality_config_tracks_mcp_event_models() -> None:
         "linked_repository_metadata",
         "risk_scope_signal",
     ]
+
+
+def test_kis_candidate_command_is_resolved_but_env_blocked() -> None:
+    category = load_category_config(_category_name())
+    source = _mcp_source(category, "migusdn/KIS_MCP_Server")
+
+    assert source.enabled is False
+    assert source.config["activation_status"] == "blocked_env_required"
+    assert source.config["command_discovery_status"] == "resolved_local_uv_mcp_run"
+    assert source.config["command"] == "uv"
+    assert source.config["args"] == [
+        "run",
+        "--with",
+        "httpx",
+        "--with",
+        "mcp[cli]",
+        "--with",
+        "xmltodict",
+        "mcp",
+        "run",
+        "server.py",
+    ]
+    assert source.config["env"] == [
+        "KIS_ACCOUNT_TYPE",
+        "KIS_APP_KEY",
+        "KIS_APP_SECRET",
+        "KIS_CANO",
+    ]
+    assert "command_or_endpoint_unresolved" not in source.config["activation_gates"]
+    assert "env_secret_documentation_required" not in source.config["activation_gates"]
+    assert source.config["env_documentation_status"] == "documented_no_secret_placeholder"
+    assert (
+        source.config["env_documentation_artifact"]
+        == "_workspace/2026-05-07_mcp_env_documentation_manifest.json"
+    )
+    assert "order_stock" in source.config["tools"]
+    assert "order-overseas-stock" not in source.config["tools"]
+
+
+def test_kis_candidate_has_fake_transport_evidence() -> None:
+    category = load_category_config(_category_name())
+    source = _mcp_source(category, "migusdn/KIS_MCP_Server")
+
+    assert source.config["fake_transport_smoke_test_status"] == "passed"
+    assert (
+        source.config["fake_transport_smoke_test_artifact"]
+        == "_workspace/2026-05-02_cycle86_financetax_migusdn_kis_fake_probe.json"
+    )
+    assert (
+        source.config["fake_transport_fixture"]
+        == "fixtures/mcp/fake_migusdn_kis_mcp_server.py"
+    )
+    assert "fake_transport_smoke_test_required" not in source.config["activation_gates"]
+    assert "real_transport_smoke_test_required" in source.config["activation_gates"]
+    assert "financial_action_possible" in source.config["risk_scope"]
+
+
+def test_korea_stock_analyzer_timeout_has_monitoring_plan_deferred() -> None:
+    category = load_category_config(_category_name())
+    source = _mcp_source(category, "Mrbaeksang/korea-stock-analyzer-mcp")
+
+    assert source.enabled is False
+    assert source.config["activation_status"] == "permanently_disabled_runtime_unstable"
+    assert source.config["runtime_timeout_confirmed_at"] == "2026-04-29T04:36:46+00:00"
+    assert source.config["runtime_resolution_status"] == "permanently_disabled_runtime_unstable"
+    assert (
+        source.config["runtime_resolution_artifact"]
+        == "_workspace/2026-05-07_mcp_runtime_blocker_resolution.json"
+    )
+    assert (
+        source.config["runtime_resolution_reason"]
+        == "stdio_initialize_timeout_confirmed_and_no_secretless_recovery_path"
+    )
+    assert source.config["disabled_reason"] == "upstream_stdio_initialize_timeout"
+    assert (
+        source.config["production_monitoring_status"]
+        == "monitoring_plan_recorded_activation_deferred"
+    )
+    assert (
+        source.config["production_monitoring_artifact"]
+        == "_workspace/2026-05-07_mcp_production_monitoring_gate_closure.json"
+    )
+    assert source.config["production_monitoring_source"] == "activation_gate_config_review"
+    assert source.config["production_monitoring_activation_condition"] == (
+        "source_enabled_after_real_transport_smoke_pass_and_remaining_gates_clear"
+    )
+    assert "production_monitoring_required" not in source.config["activation_gates"]
+    assert "reliable_stdio_initialize_required" not in source.config["activation_gates"]
+    assert "upstream_startup_regression_review_required" not in source.config["activation_gates"]
+    assert source.config["activation_gates"] == []

@@ -94,56 +94,98 @@ sources:
       - "network_read"
       - "user_account_scope"
       - "write_or_mutation_possible"
-    notes: "Activation audit applied; source remains disabled until transport smoke tests and required secrets are validated."
+    notes: "Command resolved from upstream README on 2026-04-30; source remains disabled until KIS account secrets, financial-action risk review, registry cross-check, and fake transport smoke validation are completed."
     config:
       repository: "migusdn/KIS_MCP_Server"
       source_seed: "awesome-mcp-korea"
       source_section: "Finance & Tax"
-      activation_status: "blocked_command_unresolved"
-      activation_audited_at: "2026-04-14T01:55:57.420863+00:00"
-      metadata_checked_at: "2026-04-14T01:30:44.113793+00:00"
+      activation_status: "blocked_env_required"
+      activation_audited_at: "2026-04-30T07:29:15+00:00"
+      risk_scope_reviewed_at: '2026-05-07T07:23:36+00:00'
+      risk_scope_review_status: reviewed_static_allowlist
+      risk_scope_review_artifact: _workspace/2026-05-07_mcp_risk_scope_gate_closure.json
+      risk_scope_review_source: category_risk_scope_and_tool_allowlist
+      env_documentation_checked_at: '2026-05-07T06:57:03+00:00'
+      env_documentation_status: documented_no_secret_placeholder
+      env_documentation_artifact: _workspace/2026-05-07_mcp_env_documentation_manifest.json
+      env_documentation_source: repo_env_example_managed_block
+      package_registry_crosschecked_at: "2026-05-07T07:48:43+00:00"
+      package_registry_crosscheck_status: "not_applicable_local_checkout_command"
+      package_registry_crosscheck_artifact: "_workspace/2026-05-07_mcp_registry_crosscheck_gate_closure.json"
+      package_registry_crosscheck_source: "not_applicable_local_checkout_command"
+      metadata_checked_at: '2026-05-07T05:20:56+00:00'
+      metadata_refresh_status: passed
+      metadata_refresh_artifact: _workspace/2026-05-07_mcp_github_repository_metadata_refresh.json
+      metadata_refresh_source: github_rest_api
       github_archived: false
       github_disabled: false
-      github_license: "MIT"
-      github_pushed_at: "2025-06-22T14:27:53Z"
-      github_default_branch: "master"
-      github_stars: 17
-      command: ""
+      github_license: MIT
+      github_pushed_at: '2026-05-04T08:50:53Z'
+      github_default_branch: master
+      github_stars: 20
+      github_head_sha: b04ee148b63d1045854a01e4848475d9beef91ca
+      docs_advisory_checked_at: '2026-04-30T05:06:52+00:00'
+      docs_advisory_audit_status: passed
+      docs_advisory_audit_artifact: _workspace/2026-04-30_cycle69_mcp_docs_advisory_audit.json
+      docs_advisory_audit_source: github_rest_api_contents_and_security_advisories_with_raw_html_fallback
+      github_readme_present: true
+      github_readme_path: README.md
+      github_readme_size: 6238
+      github_docs_present: true
+      github_docs_paths:
+        - README.md
+      github_docs_path_count: 1
+      github_security_policy_present: false
+      github_security_policy_paths: []
+      github_security_advisory_access_status: checked
+      github_security_advisory_count: 0
+      github_security_advisory_open_count: 0
+      github_security_advisory_published_count: 0
+      github_security_advisory_state_counts: {}
+      github_security_advisory_ids: []
+      command_discovery_checked_at: "2026-04-30T07:29:15+00:00"
+      command_discovery_status: "resolved_local_uv_mcp_run"
+      command_discovery_artifact: "_workspace/2026-04-30_cycle71_mcp_command_discovery_audit.json"
+      command_discovery_source: "github_repository_readme_and_project_files"
+      command_semantics: "local_checkout_uv_mcp_run_server_py"
+      fake_transport_smoke_tested_at: "2026-05-02T01:30:00+00:00"
+      fake_transport_smoke_test_status: "passed"
+      fake_transport_smoke_test_artifact: "_workspace/2026-05-02_cycle86_financetax_migusdn_kis_fake_probe.json"
+      fake_transport_fixture: "fixtures/mcp/fake_migusdn_kis_mcp_server.py"
+      command: "uv"
       args:
-        []
+        - "run"
+        - "--with"
+        - "httpx"
+        - "--with"
+        - "mcp[cli]"
+        - "--with"
+        - "xmltodict"
+        - "mcp"
+        - "run"
+        - "server.py"
       env:
-        - "FID_COND_MRKT_DIV_CODE"
-        - "FID_INPUT_DATE_1"
-        - "FID_INPUT_DATE_2"
-        - "FID_INPUT_ISCD"
-        - "FID_ORG_ADJ_PRC"
-        - "FID_PERIOD_DIV_CODE"
-        - "HASHKEY_PATH"
+        - "KIS_ACCOUNT_TYPE"
         - "KIS_APP_KEY"
         - "KIS_APP_SECRET"
-        - "TOKEN_FILE"
-        - "TOKEN_PATH"
-        - "TR_ID"
+        - "KIS_CANO"
       tools:
-        - "inquery-balance"
-        - "inquery-order-detail"
-        - "inquery-order-list"
-        - "inquery-overseas-stock-price"
-        - "inquery-stock-ask"
-        - "inquery-stock-history"
-        - "inquery-stock-info"
-        - "inquery-stock-price"
-        - "order-overseas-stock"
-        - "order-stock"
+        - "inquery_balance"
+        - "inquery_order_detail"
+        - "inquery_order_list"
+        - "inquery_overseas_stock_price"
+        - "inquery_stock_ask"
+        - "inquery_stock_history"
+        - "inquery_stock_info"
+        - "inquery_stock_price"
+        - "order_overseas_stock"
+        - "order_stock"
       resources: []
       timeout_seconds: 20
       max_items: 50
       activation_gates:
-        - "risk_scope_review_required"
-        - "env_secret_documentation_required"
-        - "command_or_endpoint_unresolved"
-        - "registry_crosscheck_required"
-        - "fake_transport_smoke_test_required"
+        - "real_transport_smoke_test_required"
+      event_model: "mcp_tool_result"
 
 
   - id: "mcp_candidate_mrbaeksang_korea_stock_analyzer_mcp"
@@ -158,22 +200,71 @@ sources:
     risk_scope:
       - "financial_market_signal"
       - "network_read"
-    notes: "Disabled after repeated stdio initialize timeouts on 2026-04-24; keep as a monitored candidate until upstream startup behavior is stable again."
+    notes: "Real stdio smoke rechecked on 2026-04-29 and initialize still timed out. The 2026-05-07 runtime resolution records this candidate as permanently disabled until upstream publishes a startup fix and a new stdio initialize proof is available."
     config:
       repository: "Mrbaeksang/korea-stock-analyzer-mcp"
       source_seed: "awesome-mcp-korea"
       source_section: "Finance & Tax"
-      activation_status: "blocked_runtime_timeout"
-      activation_audited_at: "2026-04-24T00:00:00+00:00"
+      activation_status: "permanently_disabled_runtime_unstable"
+      activation_audited_at: "2026-04-29T04:36:46+00:00"
+      risk_scope_reviewed_at: '2026-05-07T07:23:36+00:00'
+      risk_scope_review_status: reviewed_static_allowlist
+      risk_scope_review_artifact: _workspace/2026-05-07_mcp_risk_scope_gate_closure.json
+      risk_scope_review_source: category_risk_scope_and_tool_allowlist
+      package_registry: "npm"
+      package_name: "@mrbaeksang/korea-stock-analyzer-mcp"
+      package_version: "1.1.1"
+      package_registry_url: "https://registry.npmjs.org/%40mrbaeksang%2Fkorea-stock-analyzer-mcp"
+      package_registry_http_status: 200
+      package_registry_crosschecked_at: "2026-05-07T07:48:43+00:00"
+      package_registry_crosscheck_status: "passed"
+      package_registry_crosscheck_artifact: "_workspace/2026-05-07_mcp_registry_crosscheck_gate_closure.json"
+      package_registry_crosscheck_source: "npm_npx_package_arg"
+      package_repository: "git+https://github.com/Mrbaeksang/korea-stock-analyzer-mcp.git"
       real_transport_smoke_tested_at: "2026-04-14T04:19:00+00:00"
-      runtime_timeout_confirmed_at: "2026-04-24T00:00:00+00:00"
-      metadata_checked_at: "2026-04-14T01:30:44.113793+00:00"
+      runtime_timeout_confirmed_at: "2026-04-29T04:36:46+00:00"
+      runtime_resolution_decided_at: "2026-05-07T08:41:52+00:00"
+      runtime_resolution_status: "permanently_disabled_runtime_unstable"
+      runtime_resolution_artifact: "_workspace/2026-05-07_mcp_runtime_blocker_resolution.json"
+      runtime_resolution_reason: "stdio_initialize_timeout_confirmed_and_no_secretless_recovery_path"
+      runtime_resolution_reactivation_condition: "upstream_release_with_stable_stdio_initialize_and_new_real_transport_probe"
+      disabled_reason: "upstream_stdio_initialize_timeout"
+      production_monitoring_reviewed_at: "2026-05-07T08:07:51+00:00"
+      production_monitoring_status: "monitoring_plan_recorded_activation_deferred"
+      production_monitoring_artifact: "_workspace/2026-05-07_mcp_production_monitoring_gate_closure.json"
+      production_monitoring_source: "activation_gate_config_review"
+      production_monitoring_activation_condition: "source_enabled_after_real_transport_smoke_pass_and_remaining_gates_clear"
+      production_monitoring_deferred_reason: "source_disabled_with_remaining_activation_gates"
+      metadata_checked_at: '2026-05-07T05:20:56+00:00'
+      metadata_refresh_status: passed
+      metadata_refresh_artifact: _workspace/2026-05-07_mcp_github_repository_metadata_refresh.json
+      metadata_refresh_source: github_rest_api
       github_archived: false
       github_disabled: false
-      github_license: "MIT"
-      github_pushed_at: "2025-09-20T08:53:44Z"
-      github_default_branch: "main"
-      github_stars: 13
+      github_license: MIT
+      github_pushed_at: '2025-09-20T08:53:44Z'
+      github_default_branch: main
+      github_stars: 15
+      github_head_sha: e3145c1d2d87651ad973656389661636b8a6a48f
+      docs_advisory_checked_at: '2026-04-30T05:06:52+00:00'
+      docs_advisory_audit_status: passed
+      docs_advisory_audit_artifact: _workspace/2026-04-30_cycle69_mcp_docs_advisory_audit.json
+      docs_advisory_audit_source: github_rest_api_contents_and_security_advisories_with_raw_html_fallback
+      github_readme_present: true
+      github_readme_path: README.md
+      github_readme_size: 8345
+      github_docs_present: true
+      github_docs_paths:
+        - README.md
+      github_docs_path_count: 1
+      github_security_policy_present: false
+      github_security_policy_paths: []
+      github_security_advisory_access_status: checked
+      github_security_advisory_count: 0
+      github_security_advisory_open_count: 0
+      github_security_advisory_published_count: 0
+      github_security_advisory_state_counts: {}
+      github_security_advisory_ids: []
       command: "npx"
       args:
         - "-y"
@@ -191,12 +282,7 @@ sources:
       max_items: 5
       event_model: "mcp_tool_result"
       freshness_sla_days: 1
-      activation_gates:
-        - "risk_scope_review_required"
-        - "registry_crosscheck_required"
-        - "production_monitoring_required"
-        - "reliable_stdio_initialize_required"
-        - "upstream_startup_regression_review_required"
+      activation_gates: []
 
 entities:
   - name: "MCPDomain"
