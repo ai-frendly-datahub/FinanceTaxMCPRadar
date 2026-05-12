@@ -1,0 +1,561 @@
+{
+  "category": "finance_tax_mcp",
+  "generated_at": "2026-05-07T09:31:29.426152+00:00",
+  "scope_note": "finance_tax_mcp treats the awesome-mcp-korea section as a T4 community directory seed. Repository metadata, API credential scope, and security context remain separate enrichment layers until archived, license, and advisory fields are collected.",
+  "summary": {
+    "total_sources": 3,
+    "enabled_sources": 1,
+    "tracked_sources": 3,
+    "fresh_sources": 1,
+    "stale_sources": 0,
+    "missing_sources": 0,
+    "missing_event_sources": 0,
+    "unknown_event_date_sources": 0,
+    "not_tracked_sources": 0,
+    "skipped_disabled_sources": 2,
+    "collection_error_count": 0,
+    "mcp_signal_event_count": 8,
+    "directory_seed_source_count": 1,
+    "mcp_server_candidate_count": 2,
+    "enabled_mcp_server_source_count": 0,
+    "blocked_mcp_server_source_count": 2,
+    "real_transport_smoke_tested_source_count": 1,
+    "tool_allowlist_present_source_count": 2,
+    "credential_required_source_count": 1,
+    "env_preflight_required_source_count": 1,
+    "env_preflight_ready_source_count": 0,
+    "env_preflight_missing_source_count": 1,
+    "env_preflight_missing_var_count": 4,
+    "env_preflight_not_required_source_count": 1,
+    "repository_metadata_complete_source_count": 2,
+    "repository_metadata_gap_count": 0,
+    "repository_metadata_fresh_source_count": 2,
+    "repository_metadata_stale_source_count": 0,
+    "repository_metadata_incomplete_source_count": 0,
+    "repository_metadata_missing_checked_at_source_count": 0,
+    "repository_metadata_review_required_count": 0,
+    "repository_docs_present_source_count": 2,
+    "repository_docs_missing_source_count": 0,
+    "repository_security_policy_present_source_count": 0,
+    "repository_security_advisory_checked_source_count": 2,
+    "repository_security_advisory_total_count": 0,
+    "repository_security_advisory_open_source_count": 0,
+    "repository_security_enrichment_review_required_count": 0,
+    "security_activation_gate_count": 1,
+    "activation_gate_source_count": 1,
+    "activation_gate_total_count": 1,
+    "activation_risk_scope_review_required_source_count": 0,
+    "activation_command_unresolved_source_count": 0,
+    "activation_command_discovery_checked_source_count": 1,
+    "activation_command_discovery_resolved_source_count": 1,
+    "activation_command_discovery_unresolved_source_count": 0,
+    "activation_command_discovery_multi_server_ambiguous_source_count": 0,
+    "activation_command_discovery_status_counts": {
+      "resolved_local_uv_mcp_run": 1
+    },
+    "activation_env_secret_required_source_count": 0,
+    "activation_tool_allowlist_required_source_count": 0,
+    "activation_registry_crosscheck_required_source_count": 0,
+    "activation_fake_transport_required_source_count": 0,
+    "activation_real_transport_required_source_count": 1,
+    "activation_runtime_review_required_source_count": 0,
+    "activation_ready_for_fake_transport_source_count": 0,
+    "daily_review_item_count": 3,
+    "mcp_directory_entry_events": 5,
+    "mcp_tool_result_events": 0,
+    "linked_repository_metadata_events": 2,
+    "risk_scope_signal_events": 1
+  },
+  "sources": [
+    {
+      "source": "awesome-mcp-korea Finance & Tax",
+      "source_type": "github_readme_section",
+      "enabled": true,
+      "trust_tier": "T4_community",
+      "content_type": "mcp_directory",
+      "collection_tier": "C1_static_list",
+      "producer_role": "",
+      "info_purpose": [],
+      "tracked": true,
+      "event_model": "mcp_directory_entry",
+      "repository": "",
+      "activation_status": "",
+      "activation_gates": [],
+      "activation_gate_count": 0,
+      "activation_next_gate": "",
+      "activation_command_discovery_status": "",
+      "activation_command_discovery_checked_at": "",
+      "tools_count": 0,
+      "env_count": 0,
+      "env_preflight_status": "not_required",
+      "env_required_names": [],
+      "env_missing_names": [],
+      "repository_metadata_gaps": [
+        "repository",
+        "github_archived",
+        "github_license",
+        "github_pushed_at"
+      ],
+      "repository_metadata": {},
+      "freshness_sla_days": 7.0,
+      "status": "fresh",
+      "article_count": 5,
+      "event_count": 5,
+      "latest_event_at": "2026-05-07T09:31:26.608895+00:00",
+      "age_days": 0.0,
+      "latest_title": "KIS_MCP_Server",
+      "latest_url": "https://github.com/migusdn/KIS_MCP_Server",
+      "latest_mcp_domain": [
+        "한국투자증권",
+        "주식"
+      ],
+      "latest_provider": [
+        "kis",
+        "한국투자증권"
+      ],
+      "latest_capability": [
+        "조회",
+        "주문"
+      ],
+      "latest_risk_scope": [
+        "주문"
+      ],
+      "latest_required_field_proxy": {
+        "repository": true,
+        "source_section": true,
+        "source_url": true
+      },
+      "errors": []
+    },
+    {
+      "source": "migusdn/KIS_MCP_Server",
+      "source_type": "mcp_server",
+      "enabled": false,
+      "trust_tier": "T4_community",
+      "content_type": "mcp_tool_result",
+      "collection_tier": "C4_mcp_tool",
+      "producer_role": "",
+      "info_purpose": [],
+      "tracked": true,
+      "event_model": "mcp_tool_result",
+      "repository": "migusdn/KIS_MCP_Server",
+      "activation_status": "blocked_env_required",
+      "activation_gates": [
+        "real_transport_smoke_test_required"
+      ],
+      "activation_gate_count": 1,
+      "activation_next_gate": "real_transport_smoke_test_required",
+      "activation_command_discovery_status": "resolved_local_uv_mcp_run",
+      "activation_command_discovery_checked_at": "2026-04-30T07:29:15+00:00",
+      "tools_count": 10,
+      "env_count": 4,
+      "env_preflight_status": "missing_required_env",
+      "env_required_names": [
+        "KIS_ACCOUNT_TYPE",
+        "KIS_APP_KEY",
+        "KIS_APP_SECRET",
+        "KIS_CANO"
+      ],
+      "env_missing_names": [
+        "KIS_ACCOUNT_TYPE",
+        "KIS_APP_KEY",
+        "KIS_APP_SECRET",
+        "KIS_CANO"
+      ],
+      "repository_metadata_gaps": [],
+      "repository_metadata": {
+        "status": "fresh",
+        "repository": "migusdn/KIS_MCP_Server",
+        "checked_at": "2026-05-07T05:20:56+00:00",
+        "age_days": 0.17,
+        "freshness_sla_days": 7.0,
+        "missing_fields": [],
+        "github_pushed_at": "2026-05-04T08:50:53Z",
+        "github_license": "MIT",
+        "github_archived": false,
+        "github_disabled": false,
+        "docs_advisory_checked_at": "2026-04-30T05:06:52+00:00",
+        "github_readme_present": true,
+        "github_readme_path": "README.md",
+        "github_docs_present": true,
+        "github_docs_paths": [
+          "README.md"
+        ],
+        "github_security_policy_present": false,
+        "github_security_policy_paths": [],
+        "github_security_advisory_access_status": "checked",
+        "github_security_advisory_count": 0,
+        "github_security_advisory_open_count": 0,
+        "github_security_advisory_published_count": 0,
+        "github_security_advisory_state_counts": {},
+        "github_security_advisory_ids": []
+      },
+      "freshness_sla_days": 7.0,
+      "status": "skipped_disabled",
+      "article_count": 0,
+      "event_count": 0,
+      "latest_event_at": null,
+      "age_days": null,
+      "latest_title": "",
+      "latest_url": "",
+      "latest_mcp_domain": [],
+      "latest_provider": [],
+      "latest_capability": [],
+      "latest_risk_scope": [],
+      "latest_required_field_proxy": {},
+      "errors": []
+    },
+    {
+      "source": "Mrbaeksang/korea-stock-analyzer-mcp",
+      "source_type": "mcp_server",
+      "enabled": false,
+      "trust_tier": "T4_community",
+      "content_type": "mcp_tool_result",
+      "collection_tier": "C4_mcp_tool",
+      "producer_role": "",
+      "info_purpose": [],
+      "tracked": true,
+      "event_model": "mcp_tool_result",
+      "repository": "Mrbaeksang/korea-stock-analyzer-mcp",
+      "activation_status": "permanently_disabled_runtime_unstable",
+      "activation_gates": [],
+      "activation_gate_count": 0,
+      "activation_next_gate": "",
+      "activation_command_discovery_status": "",
+      "activation_command_discovery_checked_at": "",
+      "tools_count": 1,
+      "env_count": 0,
+      "env_preflight_status": "not_required",
+      "env_required_names": [],
+      "env_missing_names": [],
+      "repository_metadata_gaps": [],
+      "repository_metadata": {
+        "status": "fresh",
+        "repository": "Mrbaeksang/korea-stock-analyzer-mcp",
+        "checked_at": "2026-05-07T05:20:56+00:00",
+        "age_days": 0.17,
+        "freshness_sla_days": 1.0,
+        "missing_fields": [],
+        "github_pushed_at": "2025-09-20T08:53:44Z",
+        "github_license": "MIT",
+        "github_archived": false,
+        "github_disabled": false,
+        "docs_advisory_checked_at": "2026-04-30T05:06:52+00:00",
+        "github_readme_present": true,
+        "github_readme_path": "README.md",
+        "github_docs_present": true,
+        "github_docs_paths": [
+          "README.md"
+        ],
+        "github_security_policy_present": false,
+        "github_security_policy_paths": [],
+        "github_security_advisory_access_status": "checked",
+        "github_security_advisory_count": 0,
+        "github_security_advisory_open_count": 0,
+        "github_security_advisory_published_count": 0,
+        "github_security_advisory_state_counts": {},
+        "github_security_advisory_ids": []
+      },
+      "freshness_sla_days": 1.0,
+      "status": "skipped_disabled",
+      "article_count": 0,
+      "event_count": 0,
+      "latest_event_at": null,
+      "age_days": null,
+      "latest_title": "",
+      "latest_url": "",
+      "latest_mcp_domain": [],
+      "latest_provider": [],
+      "latest_capability": [],
+      "latest_risk_scope": [],
+      "latest_required_field_proxy": {},
+      "errors": []
+    }
+  ],
+  "events": [
+    {
+      "source": "awesome-mcp-korea Finance & Tax",
+      "event_model": "mcp_directory_entry",
+      "title": "KIS_MCP_Server",
+      "url": "https://github.com/migusdn/KIS_MCP_Server",
+      "event_at": "2026-05-07T09:31:26.608895+00:00",
+      "mcp_domain": [
+        "한국투자증권",
+        "주식"
+      ],
+      "provider": [
+        "kis",
+        "한국투자증권"
+      ],
+      "capability": [
+        "조회",
+        "주문"
+      ],
+      "risk_scope": [
+        "주문"
+      ],
+      "project_health": [
+        "mcp",
+        "서버"
+      ],
+      "required_field_proxy": {
+        "repository": true,
+        "source_section": true,
+        "source_url": true
+      }
+    },
+    {
+      "source": "awesome-mcp-korea Finance & Tax",
+      "event_model": "risk_scope_signal",
+      "title": "KIS_MCP_Server",
+      "url": "https://github.com/migusdn/KIS_MCP_Server",
+      "event_at": "2026-05-07T09:31:26.608895+00:00",
+      "mcp_domain": [
+        "한국투자증권",
+        "주식"
+      ],
+      "provider": [
+        "kis",
+        "한국투자증권"
+      ],
+      "capability": [
+        "조회",
+        "주문"
+      ],
+      "risk_scope": [
+        "주문"
+      ],
+      "project_health": [
+        "mcp",
+        "서버"
+      ],
+      "required_field_proxy": {
+        "repository": true,
+        "risk_scope": true,
+        "evidence_url": true
+      }
+    },
+    {
+      "source": "awesome-mcp-korea Finance & Tax",
+      "event_model": "mcp_directory_entry",
+      "title": "pykrx-mcp",
+      "url": "https://github.com/sharebook-kr/pykrx-mcp",
+      "event_at": "2026-04-30T08:36:56.602944+00:00",
+      "mcp_domain": [],
+      "provider": [],
+      "capability": [],
+      "risk_scope": [],
+      "project_health": [
+        "mcp",
+        "서버"
+      ],
+      "required_field_proxy": {
+        "repository": true,
+        "source_section": true,
+        "source_url": true
+      }
+    },
+    {
+      "source": "awesome-mcp-korea Finance & Tax",
+      "event_model": "mcp_directory_entry",
+      "title": "koreainvestment-mcp",
+      "url": "https://github.com/koreainvestment/koreainvestment-mcp",
+      "event_at": "2026-04-30T08:36:56.602942+00:00",
+      "mcp_domain": [
+        "한국투자증권",
+        "금융"
+      ],
+      "provider": [
+        "한국투자증권"
+      ],
+      "capability": [
+        "검색"
+      ],
+      "risk_scope": [],
+      "project_health": [
+        "mcp",
+        "서버"
+      ],
+      "required_field_proxy": {
+        "repository": true,
+        "source_section": true,
+        "source_url": true
+      }
+    },
+    {
+      "source": "awesome-mcp-korea Finance & Tax",
+      "event_model": "mcp_directory_entry",
+      "title": "korea-stock-mcp",
+      "url": "https://github.com/jjlabsio/korea-stock-mcp",
+      "event_at": "2026-04-30T08:36:56.602941+00:00",
+      "mcp_domain": [
+        "stock",
+        "주식"
+      ],
+      "provider": [
+        "krx"
+      ],
+      "capability": [
+        "조회",
+        "분석"
+      ],
+      "risk_scope": [],
+      "project_health": [
+        "mcp",
+        "서버"
+      ],
+      "required_field_proxy": {
+        "repository": true,
+        "source_section": true,
+        "source_url": true
+      }
+    },
+    {
+      "source": "awesome-mcp-korea Finance & Tax",
+      "event_model": "mcp_directory_entry",
+      "title": "korea-stock-analyzer-mcp",
+      "url": "https://github.com/Mrbaeksang/korea-stock-analyzer-mcp",
+      "event_at": "2026-04-30T08:36:56.602938+00:00",
+      "mcp_domain": [
+        "stock",
+        "주식"
+      ],
+      "provider": [],
+      "capability": [
+        "분석",
+        "뉴스"
+      ],
+      "risk_scope": [],
+      "project_health": [
+        "mcp",
+        "서버"
+      ],
+      "required_field_proxy": {
+        "repository": true,
+        "source_section": true,
+        "source_url": true
+      }
+    },
+    {
+      "source": "migusdn/KIS_MCP_Server",
+      "event_model": "linked_repository_metadata",
+      "title": "migusdn/KIS_MCP_Server repository metadata",
+      "url": "https://github.com/migusdn/KIS_MCP_Server",
+      "event_at": "2026-05-04T08:50:53+00:00",
+      "mcp_domain": [],
+      "provider": [],
+      "capability": [],
+      "risk_scope": [],
+      "project_health": [],
+      "required_field_proxy": {
+        "repository": true,
+        "archived": true,
+        "license": true,
+        "docs": true,
+        "security_advisory_check": true
+      },
+      "repository": "migusdn/KIS_MCP_Server",
+      "repository_metadata_status": "fresh",
+      "repository_metadata_checked_at": "2026-05-07T05:20:56+00:00",
+      "github_pushed_at": "2026-05-04T08:50:53Z",
+      "github_license": "MIT",
+      "github_archived": false,
+      "github_readme_present": true,
+      "github_docs_present": true,
+      "github_docs_paths": [
+        "README.md"
+      ],
+      "github_security_policy_present": false,
+      "github_security_advisory_access_status": "checked",
+      "github_security_advisory_count": 0,
+      "github_security_advisory_open_count": 0
+    },
+    {
+      "source": "Mrbaeksang/korea-stock-analyzer-mcp",
+      "event_model": "linked_repository_metadata",
+      "title": "Mrbaeksang/korea-stock-analyzer-mcp repository metadata",
+      "url": "https://github.com/Mrbaeksang/korea-stock-analyzer-mcp",
+      "event_at": "2025-09-20T08:53:44+00:00",
+      "mcp_domain": [],
+      "provider": [],
+      "capability": [],
+      "risk_scope": [],
+      "project_health": [],
+      "required_field_proxy": {
+        "repository": true,
+        "archived": true,
+        "license": true,
+        "docs": true,
+        "security_advisory_check": true
+      },
+      "repository": "Mrbaeksang/korea-stock-analyzer-mcp",
+      "repository_metadata_status": "fresh",
+      "repository_metadata_checked_at": "2026-05-07T05:20:56+00:00",
+      "github_pushed_at": "2025-09-20T08:53:44Z",
+      "github_license": "MIT",
+      "github_archived": false,
+      "github_readme_present": true,
+      "github_docs_present": true,
+      "github_docs_paths": [
+        "README.md"
+      ],
+      "github_security_policy_present": false,
+      "github_security_advisory_access_status": "checked",
+      "github_security_advisory_count": 0,
+      "github_security_advisory_open_count": 0
+    }
+  ],
+  "daily_review_items": [
+    {
+      "reason": "mcp_env_preflight_missing",
+      "source": "migusdn/KIS_MCP_Server",
+      "repository": "migusdn/KIS_MCP_Server",
+      "missing_env": [
+        "KIS_ACCOUNT_TYPE",
+        "KIS_APP_KEY",
+        "KIS_APP_SECRET",
+        "KIS_CANO"
+      ],
+      "activation_status": "blocked_env_required"
+    },
+    {
+      "reason": "mcp_candidate_disabled",
+      "source": "migusdn/KIS_MCP_Server",
+      "repository": "migusdn/KIS_MCP_Server",
+      "activation_status": "blocked_env_required",
+      "activation_gates": [
+        "real_transport_smoke_test_required"
+      ]
+    },
+    {
+      "reason": "mcp_candidate_disabled",
+      "source": "Mrbaeksang/korea-stock-analyzer-mcp",
+      "repository": "Mrbaeksang/korea-stock-analyzer-mcp",
+      "activation_status": "permanently_disabled_runtime_unstable",
+      "activation_gates": []
+    }
+  ],
+  "source_backlog": {
+    "operational_candidates": [
+      {
+        "id": "github_repository_metadata",
+        "name": "GitHub repository metadata enrichment",
+        "signal_type": "linked_repository_metadata",
+        "activation_gate": "rate-limit handling, repository canonicalization, and archived/license mapping"
+      },
+      {
+        "id": "mcp_registry_crosscheck",
+        "name": "MCP registry cross-check",
+        "signal_type": "mcp_registry_presence",
+        "activation_gate": "registry API availability and canonical package mapping"
+      },
+      {
+        "id": "security_advisory_crosscheck",
+        "name": "GitHub security advisory cross-check",
+        "signal_type": "security_risk",
+        "activation_gate": "advisory API coverage and false positive handling"
+      }
+    ]
+  },
+  "errors": []
+}
