@@ -9,7 +9,7 @@ Finance & Tax 섹션의 한국 MCP 서버 목록을 수집하고 리스크/활�
 
 - **데이터 수집**: RSS 피드 및 API
 - **엔티티 분석**: 도메인별 키워드 매칭
-- **트렌드 리포트**: DuckDB 저장 + HTML 리포트로 {domain} 동향 시각화
+- **트렌드 리포트**: DuckDB 저장 + HTML 리포트로 금융/세무 MCP 동향 시각화
 - **자동화**: GitHub Actions 일일 수집 + GitHub Pages 리포트 자동 배포
 
 ## 기술적 우수성
@@ -39,14 +39,14 @@ Finance & Tax 섹션의 한국 MCP 서버 목록을 수집하고 리스크/활�
 
 - 워크플로: `.github/workflows/radar-crawler.yml`
   - 스케줄: 매일 00:00 UTC (KST 09:00), 수동 실행도 지원.
-  - 환경 변수 `RADAR_CATEGORY`를 프로젝트에 맞게 수정하세요.
+  - 환경 변수 `RADAR_CATEGORY`는 `finance_tax_mcp`로 고정합니다.
   - 리포트 배포 디렉터리: `reports` → `gh-pages` 브랜치로 배포.
   - DuckDB 경로: `data/radar_data.duckdb` (Pages에 올라가지 않음). 아티팩트로 7일 보관.
 
 - 설정 방법:
   1) 저장소 Settings → Pages에서 `gh-pages` 브랜치를 선택해 활성화
   2) Actions 권한을 기본값으로 두거나 외부 PR에서도 실행되도록 설정
-  3) 워크플로 파일의 `RADAR_CATEGORY`를 원하는 YAML 이름으로 변경
+  3) 워크플로 파일의 `RADAR_CATEGORY`가 `finance_tax_mcp`인지 확인
 
 ## 동작 방식
 
@@ -62,7 +62,7 @@ Finance & Tax 섹션의 한국 MCP 서버 목록을 수집하고 리스크/활�
 ## 디렉터리 구성
 
 ```
-Radar-Template/
+FinanceTaxMCPRadar/
   main.py                 # CLI 엔트리포인트
   requirements.txt        # 의존성
   config/

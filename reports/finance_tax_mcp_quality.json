@@ -1,6 +1,6 @@
 {
   "category": "finance_tax_mcp",
-  "generated_at": "2026-05-13T15:43:16.521085+00:00",
+  "generated_at": "2026-05-13T12:37:13.917321+00:00",
   "scope_note": "finance_tax_mcp treats the awesome-mcp-korea section as a T4 community directory seed. Repository metadata, API credential scope, and security context remain separate enrichment layers until archived, license, and advisory fields are collected.",
   "summary": {
     "total_sources": 3,
@@ -101,20 +101,25 @@
       "status": "fresh",
       "article_count": 6,
       "event_count": 6,
-      "latest_event_at": "2026-05-13T15:43:15.932337+00:00",
+      "latest_event_at": "2026-05-13T12:37:13.012180+00:00",
       "age_days": 0.0,
-      "latest_title": "snaiws/DART-mcp-server",
-      "latest_url": "https://github.com/snaiws/DART-mcp-server",
+      "latest_title": "KIS_MCP_Server",
+      "latest_url": "https://github.com/migusdn/KIS_MCP_Server",
       "latest_mcp_domain": [
-        "금융"
+        "한국투자증권",
+        "주식"
       ],
       "latest_provider": [
-        "dart"
+        "kis",
+        "한국투자증권"
       ],
       "latest_capability": [
-        "조회"
+        "조회",
+        "주문"
       ],
-      "latest_risk_scope": [],
+      "latest_risk_scope": [
+        "주문"
+      ],
       "latest_required_field_proxy": {
         "repository": true,
         "source_section": true,
@@ -162,7 +167,7 @@
         "status": "fresh",
         "repository": "migusdn/KIS_MCP_Server",
         "checked_at": "2026-05-07T05:20:56+00:00",
-        "age_days": 6.43,
+        "age_days": 6.3,
         "freshness_sla_days": 7.0,
         "missing_fields": [],
         "github_pushed_at": "2026-05-04T08:50:53Z",
@@ -228,7 +233,7 @@
         "status": "stale",
         "repository": "Mrbaeksang/korea-stock-analyzer-mcp",
         "checked_at": "2026-05-07T05:20:56+00:00",
-        "age_days": 6.43,
+        "age_days": 6.3,
         "freshness_sla_days": 1.0,
         "missing_fields": [],
         "github_pushed_at": "2025-09-20T08:53:44Z",
@@ -271,137 +276,9 @@
     {
       "source": "awesome-mcp-korea Finance & Tax",
       "event_model": "mcp_directory_entry",
-      "title": "snaiws/DART-mcp-server",
-      "url": "https://github.com/snaiws/DART-mcp-server",
-      "event_at": "2026-05-13T15:43:15.932337+00:00",
-      "mcp_domain": [
-        "금융"
-      ],
-      "provider": [
-        "dart"
-      ],
-      "capability": [
-        "조회"
-      ],
-      "risk_scope": [],
-      "project_health": [
-        "mcp",
-        "server",
-        "서버"
-      ],
-      "required_field_proxy": {
-        "repository": true,
-        "source_section": true,
-        "source_url": true
-      }
-    },
-    {
-      "source": "awesome-mcp-korea Finance & Tax",
-      "event_model": "mcp_directory_entry",
-      "title": "pykrx-mcp",
-      "url": "https://github.com/sharebook-kr/pykrx-mcp",
-      "event_at": "2026-05-13T15:43:15.932336+00:00",
-      "mcp_domain": [],
-      "provider": [],
-      "capability": [],
-      "risk_scope": [],
-      "project_health": [
-        "mcp",
-        "서버"
-      ],
-      "required_field_proxy": {
-        "repository": true,
-        "source_section": true,
-        "source_url": true
-      }
-    },
-    {
-      "source": "awesome-mcp-korea Finance & Tax",
-      "event_model": "mcp_directory_entry",
-      "title": "koreainvestment-mcp",
-      "url": "https://github.com/koreainvestment/koreainvestment-mcp",
-      "event_at": "2026-05-13T15:43:15.932335+00:00",
-      "mcp_domain": [
-        "한국투자증권",
-        "금융"
-      ],
-      "provider": [
-        "한국투자증권"
-      ],
-      "capability": [
-        "검색"
-      ],
-      "risk_scope": [],
-      "project_health": [
-        "mcp",
-        "서버"
-      ],
-      "required_field_proxy": {
-        "repository": true,
-        "source_section": true,
-        "source_url": true
-      }
-    },
-    {
-      "source": "awesome-mcp-korea Finance & Tax",
-      "event_model": "mcp_directory_entry",
-      "title": "korea-stock-mcp",
-      "url": "https://github.com/jjlabsio/korea-stock-mcp",
-      "event_at": "2026-05-13T15:43:15.932333+00:00",
-      "mcp_domain": [
-        "stock",
-        "주식"
-      ],
-      "provider": [
-        "krx"
-      ],
-      "capability": [
-        "조회",
-        "분석"
-      ],
-      "risk_scope": [],
-      "project_health": [
-        "mcp",
-        "서버"
-      ],
-      "required_field_proxy": {
-        "repository": true,
-        "source_section": true,
-        "source_url": true
-      }
-    },
-    {
-      "source": "awesome-mcp-korea Finance & Tax",
-      "event_model": "mcp_directory_entry",
-      "title": "korea-stock-analyzer-mcp",
-      "url": "https://github.com/Mrbaeksang/korea-stock-analyzer-mcp",
-      "event_at": "2026-05-13T15:43:15.932330+00:00",
-      "mcp_domain": [
-        "stock",
-        "주식"
-      ],
-      "provider": [],
-      "capability": [
-        "분석",
-        "뉴스"
-      ],
-      "risk_scope": [],
-      "project_health": [
-        "mcp",
-        "서버"
-      ],
-      "required_field_proxy": {
-        "repository": true,
-        "source_section": true,
-        "source_url": true
-      }
-    },
-    {
-      "source": "awesome-mcp-korea Finance & Tax",
-      "event_model": "mcp_directory_entry",
       "title": "KIS_MCP_Server",
       "url": "https://github.com/migusdn/KIS_MCP_Server",
-      "event_at": "2026-05-13T15:43:15.932313+00:00",
+      "event_at": "2026-05-13T12:37:13.012180+00:00",
       "mcp_domain": [
         "한국투자증권",
         "주식"
@@ -432,7 +309,7 @@
       "event_model": "risk_scope_signal",
       "title": "KIS_MCP_Server",
       "url": "https://github.com/migusdn/KIS_MCP_Server",
-      "event_at": "2026-05-13T15:43:15.932313+00:00",
+      "event_at": "2026-05-13T12:37:13.012180+00:00",
       "mcp_domain": [
         "한국투자증권",
         "주식"
@@ -456,6 +333,134 @@
         "repository": true,
         "risk_scope": true,
         "evidence_url": true
+      }
+    },
+    {
+      "source": "awesome-mcp-korea Finance & Tax",
+      "event_model": "mcp_directory_entry",
+      "title": "snaiws/DART-mcp-server",
+      "url": "https://github.com/snaiws/DART-mcp-server",
+      "event_at": "2026-05-12T20:29:00.572157+00:00",
+      "mcp_domain": [
+        "금융"
+      ],
+      "provider": [
+        "dart"
+      ],
+      "capability": [
+        "조회"
+      ],
+      "risk_scope": [],
+      "project_health": [
+        "mcp",
+        "server",
+        "서버"
+      ],
+      "required_field_proxy": {
+        "repository": true,
+        "source_section": true,
+        "source_url": true
+      }
+    },
+    {
+      "source": "awesome-mcp-korea Finance & Tax",
+      "event_model": "mcp_directory_entry",
+      "title": "pykrx-mcp",
+      "url": "https://github.com/sharebook-kr/pykrx-mcp",
+      "event_at": "2026-05-12T20:29:00.572156+00:00",
+      "mcp_domain": [],
+      "provider": [],
+      "capability": [],
+      "risk_scope": [],
+      "project_health": [
+        "mcp",
+        "서버"
+      ],
+      "required_field_proxy": {
+        "repository": true,
+        "source_section": true,
+        "source_url": true
+      }
+    },
+    {
+      "source": "awesome-mcp-korea Finance & Tax",
+      "event_model": "mcp_directory_entry",
+      "title": "koreainvestment-mcp",
+      "url": "https://github.com/koreainvestment/koreainvestment-mcp",
+      "event_at": "2026-05-12T20:29:00.572154+00:00",
+      "mcp_domain": [
+        "한국투자증권",
+        "금융"
+      ],
+      "provider": [
+        "한국투자증권"
+      ],
+      "capability": [
+        "검색"
+      ],
+      "risk_scope": [],
+      "project_health": [
+        "mcp",
+        "서버"
+      ],
+      "required_field_proxy": {
+        "repository": true,
+        "source_section": true,
+        "source_url": true
+      }
+    },
+    {
+      "source": "awesome-mcp-korea Finance & Tax",
+      "event_model": "mcp_directory_entry",
+      "title": "korea-stock-mcp",
+      "url": "https://github.com/jjlabsio/korea-stock-mcp",
+      "event_at": "2026-05-12T20:29:00.572153+00:00",
+      "mcp_domain": [
+        "stock",
+        "주식"
+      ],
+      "provider": [
+        "krx"
+      ],
+      "capability": [
+        "조회",
+        "분석"
+      ],
+      "risk_scope": [],
+      "project_health": [
+        "mcp",
+        "서버"
+      ],
+      "required_field_proxy": {
+        "repository": true,
+        "source_section": true,
+        "source_url": true
+      }
+    },
+    {
+      "source": "awesome-mcp-korea Finance & Tax",
+      "event_model": "mcp_directory_entry",
+      "title": "korea-stock-analyzer-mcp",
+      "url": "https://github.com/Mrbaeksang/korea-stock-analyzer-mcp",
+      "event_at": "2026-05-12T20:29:00.572150+00:00",
+      "mcp_domain": [
+        "stock",
+        "주식"
+      ],
+      "provider": [],
+      "capability": [
+        "분석",
+        "뉴스"
+      ],
+      "risk_scope": [],
+      "project_health": [
+        "mcp",
+        "서버"
+      ],
+      "required_field_proxy": {
+        "repository": true,
+        "source_section": true,
+        "source_url": true
       }
     },
     {
@@ -561,7 +566,7 @@
       "source": "Mrbaeksang/korea-stock-analyzer-mcp",
       "repository": "Mrbaeksang/korea-stock-analyzer-mcp",
       "checked_at": "2026-05-07T05:20:56+00:00",
-      "age_days": 6.43,
+      "age_days": 6.3,
       "freshness_sla_days": 1.0
     }
   ],
