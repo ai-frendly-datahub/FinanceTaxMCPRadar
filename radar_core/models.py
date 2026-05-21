@@ -10,7 +10,6 @@ from radar.models import (
     TelegramSettings,
 )
 
-
 __all__ = [
     "Article",
     "CategoryConfig",

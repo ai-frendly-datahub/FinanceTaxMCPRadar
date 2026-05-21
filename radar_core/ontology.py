@@ -137,7 +137,7 @@ def _shadow_default_published_at(article: object) -> str | None:
     iso = getattr(value, "isoformat", None)
     if callable(iso):
         try:
-            return iso()
+            return str(iso())
         except (TypeError, ValueError):
             return None
     text = str(value).strip()
@@ -264,11 +264,7 @@ def annotate_articles_with_ontology(
         )
         if metadata is None:
             continue
-        if (
-            attach_event_model_payload
-            and source_event_model
-            and metadata.get("event_model_id")
-        ):
+        if attach_event_model_payload and source_event_model and metadata.get("event_model_id"):
             if explicit_overrides:
                 source_overrides = overrides_table.get(source_name)
             else:
@@ -283,7 +279,7 @@ def annotate_articles_with_ontology(
             )
             if payload:
                 metadata["event_model_payload"] = payload
-        setattr(article, "ontology", metadata)
+        article.ontology = metadata
     return articles
 
 
@@ -314,10 +310,31 @@ def _extract_source_event_model(source: object) -> str | None:
     if source is None:
         return None
     config = getattr(source, "config", None)
-    if not isinstance(config, Mapping):
-        return None
-    raw_value = str(config.get("event_model") or "").strip()
-    return raw_value or None
+    if isinstance(config, Mapping):
+        raw_value = str(config.get("event_model") or "").strip()
+        if raw_value:
+            return raw_value
+
+    content_type = str(getattr(source, "content_type", "") or "").strip().lower()
+    source_type = str(getattr(source, "type", "") or "").strip().lower()
+    if content_type in {"mcp_directory", "directory"} or source_type == "github_readme_section":
+        return "mcp_directory_entry"
+    if content_type in {"mcp_tool_result", "mcp_tool", "mcp_result"} or source_type in {
+        "mcp",
+        "mcp_http",
+        "mcp_sse",
+        "mcp_server",
+        "mcp_stdio",
+        "mcp_streamable_http",
+        "mcp_tool",
+        "model_context_protocol",
+    }:
+        return "mcp_tool_result"
+    if content_type in {"repository_metadata", "linked_repository_metadata"}:
+        return "linked_repository_metadata"
+    if content_type in {"risk", "security_risk", "risk_scope_signal"}:
+        return "risk_scope_signal"
+    return None
 
 
 def _has_value(value: object) -> bool:

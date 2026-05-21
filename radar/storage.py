@@ -40,8 +40,7 @@ class RadarStorage:
         self.close()
 
     def _ensure_tables(self) -> None:
-        _ = self.conn.execute(
-            """
+        _ = self.conn.execute("""
             CREATE SEQUENCE IF NOT EXISTS articles_id_seq START 1;
             CREATE TABLE IF NOT EXISTS articles (
                 id BIGINT PRIMARY KEY DEFAULT nextval('articles_id_seq'),
@@ -55,8 +54,7 @@ class RadarStorage:
                 entities_json TEXT,
                 ontology_json TEXT
             );
-            """
-        )
+            """)
         _ = self.conn.execute(
             "CREATE INDEX IF NOT EXISTS idx_articles_category_time ON articles (category, published, collected_at);"
         )

@@ -106,6 +106,21 @@ def test_search_supports_korean_text(tmp_path: Path) -> None:
     assert results[0].link == "https://example.com/ko"
 
 
+def test_search_supports_korean_substring_text(tmp_path: Path) -> None:
+    index = SearchIndex(tmp_path / "search_index.db")
+    index.upsert(
+        link="https://example.com/dart",
+        title="DART MCP",
+        body="첨부 문서를 처리하는 MCP 서버입니다.",
+    )
+
+    results = index.search("문서")
+    index.close()
+
+    assert len(results) == 1
+    assert results[0].link == "https://example.com/dart"
+
+
 def test_upsert_same_link_twice_updates_document(tmp_path: Path) -> None:
     index = SearchIndex(tmp_path / "search_index.db")
     link = "https://example.com/article"

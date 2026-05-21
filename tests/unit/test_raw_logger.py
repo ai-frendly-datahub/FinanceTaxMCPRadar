@@ -38,6 +38,8 @@ def test_log_writes_valid_json_per_line(tmp_path: Path) -> None:
         _make_article(title="A", summary="첫 번째"),
         _make_article(title="B", summary="두 번째"),
     ]
+    articles[0].link = "https://example.com/article-a"
+    articles[1].link = "https://example.com/article-b"
 
     output_path = logger.log(articles, source_name="source")
 
@@ -58,9 +60,13 @@ def test_log_writes_valid_json_per_line(tmp_path: Path) -> None:
 
 def test_log_appends_when_called_multiple_times(tmp_path: Path) -> None:
     logger = RawLogger(tmp_path)
+    first = _make_article(title="first")
+    second = _make_article(title="second")
+    first.link = "https://example.com/first"
+    second.link = "https://example.com/second"
 
-    output_path = logger.log([_make_article(title="first")], source_name="source")
-    _ = logger.log([_make_article(title="second")], source_name="source")
+    output_path = logger.log([first], source_name="source")
+    _ = logger.log([second], source_name="source")
 
     lines = output_path.read_text(encoding="utf-8").splitlines()
     assert len(lines) == 2
@@ -113,6 +119,18 @@ def test_log_prevents_duplicate_links_on_rerun(tmp_path: Path) -> None:
     assert json.loads(lines[1])["title"] == "Article 2"
 
 
+def test_log_prevents_duplicate_links_without_run_id(tmp_path: Path) -> None:
+    logger = RawLogger(tmp_path)
+    article = _make_article(title="Article")
+
+    output_path = logger.log([article], source_name="source")
+    _ = logger.log([article], source_name="source")
+
+    lines = output_path.read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 1
+    assert json.loads(lines[0])["title"] == "Article"
+
+
 def test_log_with_run_id_changes_filename(tmp_path: Path) -> None:
     logger = RawLogger(tmp_path)
     article = _make_article()
@@ -130,6 +148,8 @@ def test_log_without_run_id_appends_to_same_file(tmp_path: Path) -> None:
     logger = RawLogger(tmp_path)
     article1 = _make_article(title="Article 1")
     article2 = _make_article(title="Article 2")
+    article1.link = "https://example.com/article1"
+    article2.link = "https://example.com/article2"
 
     output_path1 = logger.log([article1], source_name="source")
     output_path2 = logger.log([article2], source_name="source")

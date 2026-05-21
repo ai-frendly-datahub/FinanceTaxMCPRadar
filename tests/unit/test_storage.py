@@ -8,7 +8,6 @@ from typing import Protocol, cast
 
 import pytest
 
-
 StorageError = cast(type[Exception], import_module("radar.exceptions").StorageError)
 
 
@@ -151,7 +150,7 @@ def test_upsert_atomicity_rollback_preserves_data(tmp_duckdb: Path) -> None:
         summary="should fail",
         published=datetime.now(UTC),
     )
-    invalid.link = None
+    invalid.link = cast(str, None)
 
     try:
         storage.upsert_articles([existing])

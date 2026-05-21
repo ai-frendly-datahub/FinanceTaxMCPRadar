@@ -5,13 +5,15 @@ from datetime import UTC
 from pathlib import Path
 from typing import Any, cast
 
-from radar_core.ontology import annotate_articles_with_ontology
-from radar.config_loader import filter_sources
-
 from radar.analyzer import apply_entity_rules
 from radar.collector import collect_sources
 from radar.common.validators import validate_article
-from radar.config_loader import load_category_config, load_category_quality_config, load_settings
+from radar.config_loader import (
+    filter_sources,
+    load_category_config,
+    load_category_quality_config,
+    load_settings,
+)
 from radar.date_storage import apply_date_storage_policy
 from radar.models import Article
 from radar.quality_report import build_quality_report, write_quality_report
@@ -19,6 +21,7 @@ from radar.raw_logger import RawLogger
 from radar.reporter import generate_index_html, generate_report
 from radar.search_index import SearchIndex
 from radar.storage import RadarStorage
+from radar_core.ontology import annotate_articles_with_ontology
 
 
 def _send_notifications(
@@ -114,8 +117,9 @@ def run(
         limit_per_source=per_source_limit,
         timeout=timeout,
     )
-    collected = annotate_articles_with_ontology(
-        collected,
+    analyzed = apply_entity_rules(collected, category_cfg.entities)
+    analyzed = annotate_articles_with_ontology(
+        analyzed,
         repo_name="FinanceTaxMCPRadar",
         sources_by_name={source.name: source for source in effective_sources},
         category_name=category_cfg.category_name,
@@ -125,11 +129,9 @@ def run(
 
     raw_logger = RawLogger(settings.raw_data_dir)
     for source in effective_sources:
-        source_articles = [article for article in collected if article.source == source.name]
+        source_articles = [article for article in analyzed if article.source == source.name]
         if source_articles:
             _ = raw_logger.log(source_articles, source_name=source.name)
-
-    analyzed = apply_entity_rules(collected, category_cfg.entities)
 
     # Validate articles for data quality
     validated_articles: list[Article] = []
@@ -263,7 +265,7 @@ def parse_args() -> argparse.Namespace:
         "--generate-report",
         action="store_true",
         default=False,
-        help="Generate HTML report after collection",
+        help="Deprecated compatibility flag. HTML reports are always generated.",
     )
     _ = parser.add_argument(
         "--max-sources",
@@ -300,8 +302,6 @@ def _to_int(value: object, default: int) -> int:
     return default
 
 
-
-
 def _to_optional_int(value: object) -> int | None:
     if value is None:
         return None
@@ -321,6 +321,8 @@ def _to_str_list(value: object) -> list[str]:
     if isinstance(value, list):
         return [str(item) for item in cast(list[object], value) if isinstance(item, str)]
     return []
+
+
 if __name__ == "__main__":
     args = cast(dict[str, object], vars(parse_args()))
     _ = run(

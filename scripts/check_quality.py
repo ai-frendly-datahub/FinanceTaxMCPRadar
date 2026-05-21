@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import re
 import sys
+from collections.abc import Iterable
 from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
@@ -13,7 +14,6 @@ from typing import Any
 import duckdb
 import yaml
 from bs4 import BeautifulSoup
-
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -33,10 +33,90 @@ from radar.quality_report import build_quality_report, write_quality_report  # n
 from radar.storage import RadarStorage  # noqa: E402
 
 
+def check_raw_jsonl_duplicates(raw_data_dir: Path) -> list[dict[str, Any]]:
+    """Report duplicate link records in raw JSONL snapshots."""
+    print("\n=== Raw JSONL Duplicate Link Check ===\n")
+    if not raw_data_dir.exists():
+        print(f"Raw data directory not found: {raw_data_dir}")
+        return []
+
+    duplicate_files: list[dict[str, Any]] = []
+    jsonl_files = sorted(raw_data_dir.glob("**/*.jsonl"))
+    for path in jsonl_files:
+        seen_links: set[str] = set()
+        duplicate_links: set[str] = set()
+        row_count = 0
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except OSError as exc:
+            duplicate_files.append(
+                {
+                    "path": str(path),
+                    "rows": 0,
+                    "distinct_links": 0,
+                    "duplicate_links": [],
+                    "error": str(exc),
+                }
+            )
+            continue
+
+        for line in lines:
+            if not line.strip():
+                continue
+            row_count += 1
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                duplicate_files.append(
+                    {
+                        "path": str(path),
+                        "rows": row_count,
+                        "distinct_links": len(seen_links),
+                        "duplicate_links": [],
+                        "error": "invalid_json",
+                    }
+                )
+                break
+            if not isinstance(record, dict):
+                continue
+            link = str(record.get("link") or "").strip()
+            if not link:
+                continue
+            if link in seen_links:
+                duplicate_links.add(link)
+            seen_links.add(link)
+        else:
+            if duplicate_links:
+                duplicate_files.append(
+                    {
+                        "path": str(path),
+                        "rows": row_count,
+                        "distinct_links": len(seen_links),
+                        "duplicate_links": sorted(duplicate_links),
+                    }
+                )
+
+    if not duplicate_files:
+        print(f"No raw JSONL duplicate links found across {len(jsonl_files)} files.")
+        return []
+
+    for issue in duplicate_files:
+        duplicate_count = len(issue.get("duplicate_links", []))
+        error = issue.get("error")
+        suffix = f" error={error}" if error else ""
+        print(
+            f"{issue['path']}: rows={issue['rows']} "
+            f"distinct_links={issue['distinct_links']} duplicate_links={duplicate_count}{suffix}"
+        )
+    return duplicate_files
+
+
 def _category_name(project_root: Path = PROJECT_ROOT) -> str:
     configs = sorted((project_root / "config" / "categories").glob("*.yaml"))
     if len(configs) != 1:
-        raise RuntimeError(f"Expected exactly one category config in {project_root / 'config' / 'categories'}")
+        raise RuntimeError(
+            f"Expected exactly one category config in {project_root / 'config' / 'categories'}"
+        )
     return configs[0].stem
 
 
@@ -46,7 +126,9 @@ def _project_path(project_root: Path, raw_path: str | Path) -> Path:
 
 
 def _load_runtime_config(project_root: Path) -> dict[str, Any]:
-    raw = yaml.safe_load((project_root / "config" / "config.yaml").read_text(encoding="utf-8")) or {}
+    raw = (
+        yaml.safe_load((project_root / "config" / "config.yaml").read_text(encoding="utf-8")) or {}
+    )
     return raw if isinstance(raw, dict) else {}
 
 
@@ -147,6 +229,10 @@ def main() -> None:
         PROJECT_ROOT,
         str(runtime_config.get("database_path", "data/radar_data.duckdb")),
     )
+    raw_data_dir = _project_path(
+        PROJECT_ROOT,
+        str(runtime_config.get("raw_data_dir", "data/raw")),
+    )
 
     if db_path.exists():
         with duckdb.connect(str(db_path), read_only=True) as con:
@@ -169,6 +255,8 @@ def main() -> None:
         print(f"Database not found: {db_path}")
         print("Using existing HTML report fallback for quality JSON.")
 
+    raw_quality_issues = check_raw_jsonl_duplicates(raw_data_dir)
+
     paths, report, articles = generate_quality_artifacts(PROJECT_ROOT)
     summary = report["summary"]
     if isinstance(summary, dict):
@@ -182,6 +270,9 @@ def main() -> None:
         print(f"not_tracked_sources={summary.get('not_tracked_sources', 0)}")
         print(f"mcp_signal_event_count={summary.get('mcp_signal_event_count', 0)}")
 
+    if raw_quality_issues:
+        raise SystemExit("Raw JSONL quality issues found; see output above.")
+
 
 def _articles_from_existing_report(
     category: CategoryConfig,
@@ -194,7 +285,9 @@ def _articles_from_existing_report(
 
     html = report_path.read_text(encoding="utf-8")
     soup = BeautifulSoup(html, "html.parser")
-    generated_at = _report_generated_at(html) or _summary_generated_at(category.category_name, report_dir)
+    generated_at = _report_generated_at(html) or _summary_generated_at(
+        category.category_name, report_dir
+    )
     published = generated_at or datetime.now(UTC)
     source_name = category.sources[0].name if category.sources else ""
 
@@ -233,7 +326,7 @@ def _latest_report_path(category_name: str, report_dir: Path) -> Path | None:
     return candidates[-1] if candidates else None
 
 
-def _entities_from_chips(chips: list[object]) -> dict[str, list[str]]:
+def _entities_from_chips(chips: Iterable[object]) -> dict[str, list[str]]:
     entities: dict[str, list[str]] = {}
     for chip in chips:
         text = chip.get_text(" ", strip=True) if hasattr(chip, "get_text") else ""
@@ -254,7 +347,9 @@ def _report_generated_at(html: str) -> datetime | None:
 
 
 def _summary_generated_at(category_name: str, report_dir: Path) -> datetime | None:
-    summary_files = sorted(report_dir.glob(f"{category_name}_*_summary.json"), key=lambda path: path.name)
+    summary_files = sorted(
+        report_dir.glob(f"{category_name}_*_summary.json"), key=lambda path: path.name
+    )
     if not summary_files:
         return None
     data = json.loads(summary_files[-1].read_text(encoding="utf-8"))

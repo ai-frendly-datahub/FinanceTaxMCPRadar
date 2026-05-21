@@ -5,7 +5,6 @@ import json
 import sys
 from typing import Any
 
-
 _TOOL_NAMES = [
     "inquery_balance",
     "inquery_order_detail",
@@ -71,14 +70,19 @@ def response_for(message: dict[str, Any]) -> dict[str, Any] | None:
     if method == "tools/list":
         return {"jsonrpc": "2.0", "id": request_id, "result": {"tools": TOOLS}}
     if method == "tools/call":
-        params = message.get("params") if isinstance(message.get("params"), dict) else {}
-        tool_name = params.get("name")
+        raw_params = message.get("params")
+        params = raw_params if isinstance(raw_params, dict) else {}
+        raw_tool_name = params.get("name")
+        tool_name = raw_tool_name if isinstance(raw_tool_name, str) else ""
         result = RESULTS.get(tool_name)
         if result is None:
             return {
                 "jsonrpc": "2.0",
                 "id": request_id,
-                "result": {"isError": True, "content": [{"type": "text", "text": f"Unsupported tool: {tool_name}"}]},
+                "result": {
+                    "isError": True,
+                    "content": [{"type": "text", "text": f"Unsupported tool: {tool_name}"}],
+                },
             }
         return {
             "jsonrpc": "2.0",

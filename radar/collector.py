@@ -19,12 +19,13 @@ from .mcp_source import MCP_SOURCE_TYPES, collect_mcp_server_source
 from .models import Article, Source
 from .resilience import get_circuit_breaker_manager
 
-
 _DEFAULT_HEADERS: dict[str, str] = {
     "User-Agent": "Mozilla/5.0 (compatible; MCPRadarBot/1.0; +https://github.com/zzragida/ai-frendly-datahub)",
 }
 _SECTION_RE = re.compile(r"^###\s+(?:[^\w\s]+\s+)?(?P<section>[A-Za-z][^#]+?)\s*$")
-_ITEM_RE = re.compile(r"^\*\*\[(?P<title>[^\]]+)\]\((?P<link>[^)]+)\)\*\*\s*[–-]\s*(?P<summary>.+)$")
+_ITEM_RE = re.compile(
+    r"^\*\*\[(?P<title>[^\]]+)\]\((?P<link>[^)]+)\)\*\*\s*[–-]\s*(?P<summary>.+)$"
+)
 
 
 class RateLimiter:
@@ -90,7 +91,6 @@ def collect_sources(
 
     workers = _resolve_max_workers(max_workers)
     manager = get_circuit_breaker_manager()
-    session = requests.Session()
     source_hosts = {
         source.name: (urlparse(source.url).netloc.lower() or source.name) for source in sources
     }
@@ -104,14 +104,15 @@ def collect_sources(
         rate_limiters[source_hosts[source.name]].acquire()
         try:
             breaker = manager.get_breaker(source.name)
-            articles = breaker.call(
-                _collect_single,
-                source,
-                category=category,
-                limit=limit_per_source,
-                timeout=timeout,
-                session=session,
-            )
+            with requests.Session() as session:
+                articles = breaker.call(
+                    _collect_single,
+                    source,
+                    category=category,
+                    limit=limit_per_source,
+                    timeout=timeout,
+                    session=session,
+                )
             return articles, []
         except SourceError as exc:
             return [], [str(exc)]
@@ -120,28 +121,25 @@ def collect_sources(
         except Exception as exc:
             return [], [f"{source.name}: Unexpected error - {type(exc).__name__}: {exc}"]
 
-    try:
-        articles: list[Article] = []
-        errors: list[str] = []
+    articles: list[Article] = []
+    errors: list[str] = []
 
-        if workers == 1:
-            for source in sources:
-                source_articles, source_errors = _collect_for_source(source)
-                articles.extend(source_articles)
-                errors.extend(source_errors)
-            return articles, errors
-
-        with ThreadPoolExecutor(max_workers=workers) as executor:
-            futures: list[Future[tuple[list[Article], list[str]]]] = [
-                executor.submit(_collect_for_source, source) for source in sources
-            ]
-            for future in futures:
-                source_articles, source_errors = future.result()
-                articles.extend(source_articles)
-                errors.extend(source_errors)
+    if workers == 1:
+        for source in sources:
+            source_articles, source_errors = _collect_for_source(source)
+            articles.extend(source_articles)
+            errors.extend(source_errors)
         return articles, errors
-    finally:
-        session.close()
+
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        futures: list[Future[tuple[list[Article], list[str]]]] = [
+            executor.submit(_collect_for_source, source) for source in sources
+        ]
+        for future in futures:
+            source_articles, source_errors = future.result()
+            articles.extend(source_articles)
+            errors.extend(source_errors)
+    return articles, errors
 
 
 def _collect_single(
@@ -154,7 +152,9 @@ def _collect_single(
 ) -> list[Article]:
     source_type = source.type.lower()
     if source_type == "rss":
-        return _collect_rss(source, category=category, limit=limit, timeout=timeout, session=session)
+        return _collect_rss(
+            source, category=category, limit=limit, timeout=timeout, session=session
+        )
     if source_type == "github_readme_section":
         return _collect_github_readme_section(
             source,

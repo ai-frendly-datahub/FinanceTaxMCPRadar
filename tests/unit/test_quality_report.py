@@ -5,7 +5,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from radar.config_loader import load_category_config, load_category_quality_config
-from radar.models import Article
+from radar.models import Article, Source
 from radar.quality_report import build_quality_report, write_quality_report
 
 
@@ -15,7 +15,7 @@ def _category_name() -> str:
     return configs[0].stem
 
 
-def _env_required_names(source) -> list[str]:
+def _env_required_names(source: Source) -> list[str]:
     raw = source.config.get("env")
     if isinstance(raw, dict):
         return [str(name).strip() for name in raw if str(name).strip()]
@@ -24,10 +24,14 @@ def _env_required_names(source) -> list[str]:
     return []
 
 
-def _env_resolved_values(source) -> dict[str, str]:
+def _env_resolved_values(source: Source) -> dict[str, str]:
     raw = source.config.get("env")
     if isinstance(raw, list):
-        return {str(name).strip(): os.environ.get(str(name).strip(), "") for name in raw if str(name).strip()}
+        return {
+            str(name).strip(): os.environ.get(str(name).strip(), "")
+            for name in raw
+            if str(name).strip()
+        }
     if not isinstance(raw, dict):
         return {}
 
@@ -44,7 +48,7 @@ def _env_resolved_values(source) -> dict[str, str]:
     return values
 
 
-def _env_missing_names(source) -> list[str]:
+def _env_missing_names(source: Source) -> list[str]:
     values = _env_resolved_values(source)
     return [name for name in _env_required_names(source) if not values.get(name, "").strip()]
 
@@ -91,24 +95,33 @@ def test_quality_report_tracks_directory_and_risk_scope_events() -> None:
     assert summary["blocked_mcp_server_source_count"] == sum(
         1 for source in mcp_sources if not source.enabled
     )
-    assert (
-        summary["repository_metadata_fresh_source_count"]
-        + summary["repository_metadata_stale_source_count"]
-        + summary["repository_metadata_incomplete_source_count"]
-        + summary["repository_metadata_missing_checked_at_source_count"]
-        == len(mcp_sources)
+    assert summary["permanently_disabled_mcp_server_source_count"] == sum(
+        1
+        for source in mcp_sources
+        if str(source.config.get("activation_status") or "").startswith("permanently_disabled_")
     )
-    assert (
-        summary["repository_docs_present_source_count"]
-        + summary["repository_docs_missing_source_count"]
-        == len(mcp_sources)
+    assert summary["actionable_blocked_mcp_server_source_count"] == sum(
+        1
+        for source in mcp_sources
+        if not source.enabled
+        and not str(source.config.get("activation_status") or "").startswith(
+            "permanently_disabled_"
+        )
     )
+    assert summary["repository_metadata_fresh_source_count"] + summary[
+        "repository_metadata_stale_source_count"
+    ] + summary["repository_metadata_incomplete_source_count"] + summary[
+        "repository_metadata_missing_checked_at_source_count"
+    ] == len(
+        mcp_sources
+    )
+    assert summary["repository_docs_present_source_count"] + summary[
+        "repository_docs_missing_source_count"
+    ] == len(mcp_sources)
     assert summary["repository_security_advisory_checked_source_count"] <= len(mcp_sources)
     assert summary["repository_security_advisory_total_count"] >= 0
     expected_activation_gates = [
-        gate
-        for source in mcp_sources
-        for gate in source.config.get("activation_gates", [])
+        gate for source in mcp_sources for gate in source.config.get("activation_gates", [])
     ]
     expected_activation_gate_sets = [
         set(source.config.get("activation_gates", [])) for source in mcp_sources
@@ -138,10 +151,9 @@ def test_quality_report_tracks_directory_and_risk_scope_events() -> None:
     assert summary["activation_command_discovery_unresolved_source_count"] == (
         len(expected_command_discovery_statuses) - expected_command_discovery_resolved
     )
-    assert (
-        summary["activation_command_discovery_multi_server_ambiguous_source_count"]
-        == expected_command_discovery_statuses.count("multi_server_ambiguous")
-    )
+    assert summary[
+        "activation_command_discovery_multi_server_ambiguous_source_count"
+    ] == expected_command_discovery_statuses.count("multi_server_ambiguous")
     assert summary["activation_command_discovery_status_counts"] == {
         status: expected_command_discovery_statuses.count(status)
         for status in sorted(set(expected_command_discovery_statuses))
@@ -162,12 +174,9 @@ def test_quality_report_tracks_directory_and_risk_scope_events() -> None:
     assert summary["env_preflight_required_source_count"] == len(expected_env_sources)
     assert summary["env_preflight_missing_source_count"] == len(expected_env_missing_sources)
     assert summary["env_preflight_missing_var_count"] == expected_env_missing_vars
-    assert (
-        summary["env_preflight_ready_source_count"]
-        + summary["env_preflight_missing_source_count"]
-        + summary["env_preflight_not_required_source_count"]
-        == len(mcp_sources)
-    )
+    assert summary["env_preflight_ready_source_count"] + summary[
+        "env_preflight_missing_source_count"
+    ] + summary["env_preflight_not_required_source_count"] == len(mcp_sources)
     source_rows_by_name = {row["source"]: row for row in report["sources"]}
     for mcp_source in mcp_sources:
         mcp_row = source_rows_by_name[mcp_source.name]
@@ -189,6 +198,22 @@ def test_quality_report_tracks_directory_and_risk_scope_events() -> None:
         "source_url": True,
     }
     assert isinstance(report["daily_review_items"], list)
+    permanently_disabled_sources = {
+        source.name
+        for source in mcp_sources
+        if str(source.config.get("activation_status") or "").startswith("permanently_disabled_")
+    }
+    assert not any(
+        item.get("reason") in {"mcp_candidate_disabled", "mcp_activation_gate_blocked"}
+        and item.get("source") in permanently_disabled_sources
+        for item in report["daily_review_items"]
+    )
+    env_missing_sources = {source.name for source in mcp_sources if _env_missing_names(source)}
+    assert not any(
+        item.get("reason") == "mcp_activation_gate_blocked"
+        and item.get("source") in env_missing_sources
+        for item in report["daily_review_items"]
+    )
 
     metadata_events = [
         event for event in report["events"] if event["event_model"] == "linked_repository_metadata"

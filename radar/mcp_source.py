@@ -3,8 +3,8 @@ from __future__ import annotations
 import asyncio
 import json
 import os
-import signal
 import shutil
+import signal
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -14,7 +14,6 @@ import requests
 
 from .exceptions import NetworkError, SourceError
 from .models import Article, Source
-
 
 MCP_SOURCE_TYPES = {
     "mcp",
@@ -64,7 +63,9 @@ def collect_mcp_server_source(
     """
     config = parse_mcp_source_config(source, timeout=timeout, limit=limit)
     payloads = collect_mcp_payloads(source, config)
-    return normalize_mcp_payloads(payloads, source=source, category=category, limit=config.max_items)
+    return normalize_mcp_payloads(
+        payloads, source=source, category=category, limit=config.max_items
+    )
 
 
 def parse_mcp_source_config(source: Source, *, timeout: int, limit: int) -> MCPSourceConfig:
@@ -188,7 +189,9 @@ async def _run_stdio_session(source: Source, config: MCPSourceConfig) -> list[An
                     "params": {"name": tool.name, "arguments": tool.arguments},
                 },
             )
-            payloads.append(await _stdio_read_result(process, request_id, timeout=config.timeout_seconds))
+            payloads.append(
+                await _stdio_read_result(process, request_id, timeout=config.timeout_seconds)
+            )
 
         for uri in config.resources:
             request_id += 1
@@ -201,7 +204,9 @@ async def _run_stdio_session(source: Source, config: MCPSourceConfig) -> list[An
                     "params": {"uri": uri},
                 },
             )
-            payloads.append(await _stdio_read_result(process, request_id, timeout=config.timeout_seconds))
+            payloads.append(
+                await _stdio_read_result(process, request_id, timeout=config.timeout_seconds)
+            )
     finally:
         await _stop_stdio_process(process)
     return payloads
@@ -424,7 +429,10 @@ def _response_json(response: requests.Response) -> dict[str, Any]:
     if "text/event-stream" in content_type:
         for line in response.text.splitlines():
             if line.startswith("data:"):
-                return json.loads(line.removeprefix("data:").strip())
+                event_data = json.loads(line.removeprefix("data:").strip())
+                if not isinstance(event_data, dict):
+                    raise ValueError("MCP JSON-RPC SSE response must be an object")
+                return dict(event_data)
     data = response.json()
     if not isinstance(data, dict):
         raise ValueError("MCP JSON-RPC response must be an object")
@@ -536,11 +544,7 @@ def _parse_tools(raw: dict[str, Any]) -> list[MCPToolCall]:
 
 
 def _validate_required_env(source: Source, config: MCPSourceConfig) -> None:
-    missing = [
-        name
-        for name in config.required_env
-        if not str(config.env.get(name, "")).strip()
-    ]
+    missing = [name for name in config.required_env if not str(config.env.get(name, "")).strip()]
     if missing:
         raise SourceError(
             source.name,

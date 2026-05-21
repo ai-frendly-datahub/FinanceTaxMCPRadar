@@ -10,7 +10,6 @@ from typing import Any
 
 from .models import Article, CategoryConfig, Source
 
-
 TRACKED_EVENT_MODEL_ORDER = [
     "mcp_directory_entry",
     "mcp_tool_result",
@@ -46,7 +45,6 @@ RUNTIME_REVIEW_GATES = {
     "production_monitoring_required",
     "production_enablement_review_required",
 }
-
 
 
 def build_quality_report(
@@ -91,9 +89,7 @@ def build_quality_report(
     ]
     daily_review_items = _build_daily_review_items(source_rows, category.sources)
     repository_metadata_rows = [
-        metadata
-        for row in source_rows
-        if (metadata := _mapping(row.get("repository_metadata")))
+        metadata for row in source_rows if (metadata := _mapping(row.get("repository_metadata")))
     ]
     repository_metadata_status_counts = Counter(
         str(row.get("status") or "unknown") for row in repository_metadata_rows
@@ -136,10 +132,29 @@ def build_quality_report(
             1 for source in category.sources if _source_event_model(source) == "mcp_directory_entry"
         ),
         "mcp_server_candidate_count": len(mcp_server_sources),
-        "enabled_mcp_server_source_count": sum(1 for source in mcp_server_sources if source.enabled),
-        "blocked_mcp_server_source_count": sum(1 for source in mcp_server_sources if not source.enabled),
+        "enabled_mcp_server_source_count": sum(
+            1 for source in mcp_server_sources if source.enabled
+        ),
+        "blocked_mcp_server_source_count": sum(
+            1 for source in mcp_server_sources if not source.enabled
+        ),
+        "permanently_disabled_mcp_server_source_count": sum(
+            1
+            for source in mcp_server_sources
+            if str(source.config.get("activation_status") or "").startswith("permanently_disabled_")
+        ),
+        "actionable_blocked_mcp_server_source_count": sum(
+            1
+            for source in mcp_server_sources
+            if not source.enabled
+            and not str(source.config.get("activation_status") or "").startswith(
+                "permanently_disabled_"
+            )
+        ),
         "real_transport_smoke_tested_source_count": sum(
-            1 for source in mcp_server_sources if bool(source.config.get("real_transport_smoke_tested_at"))
+            1
+            for source in mcp_server_sources
+            if bool(source.config.get("real_transport_smoke_tested_at"))
         ),
         "tool_allowlist_present_source_count": sum(
             1 for source in mcp_server_sources if bool(source.config.get("tools"))
@@ -190,7 +205,9 @@ def build_quality_report(
             1 for row in repository_metadata_rows if row.get("github_docs_present") is False
         ),
         "repository_security_policy_present_source_count": sum(
-            1 for row in repository_metadata_rows if row.get("github_security_policy_present") is True
+            1
+            for row in repository_metadata_rows
+            if row.get("github_security_policy_present") is True
         ),
         "repository_security_advisory_checked_source_count": sum(
             1
@@ -210,13 +227,14 @@ def build_quality_report(
             1
             for row in repository_metadata_rows
             if row.get("github_docs_present") is False
-            or not str(row.get("github_security_advisory_access_status") or "").startswith("checked")
+            or not str(row.get("github_security_advisory_access_status") or "").startswith(
+                "checked"
+            )
             or _as_int(row.get("github_security_advisory_open_count"), 0) > 0
         ),
         "security_activation_gate_count": sum(
             len(_list(source.config.get("activation_gates"))) for source in mcp_server_sources
         ),
-
         "activation_gate_source_count": sum(1 for gates in activation_gate_sets if gates),
         "activation_gate_total_count": sum(len(gates) for gates in activation_gate_sets),
         "activation_risk_scope_review_required_source_count": activation_gate_counts.get(
@@ -518,6 +536,7 @@ def _build_daily_review_items(
         repository = _source_repository(source)
         activation_status = str(source.config.get("activation_status", ""))
         env_preflight = _env_preflight_status(source)
+        activation_review_recorded = False
         if env_preflight["status"] == "missing_required_env":
             items.append(
                 {
@@ -528,17 +547,27 @@ def _build_daily_review_items(
                     "activation_status": activation_status,
                 }
             )
-        if not source.enabled:
+            activation_review_recorded = True
+        if (
+            not source.enabled
+            and not activation_status.startswith("permanently_disabled_")
+            and not activation_review_recorded
+        ):
             items.append(
                 {
-                    "reason": "mcp_candidate_disabled",
+                    "reason": "mcp_activation_gate_blocked",
                     "source": source_name,
                     "repository": repository,
                     "activation_status": activation_status,
+                    "activation_next_gate": _activation_next_gate(source),
                     "activation_gates": _list(source.config.get("activation_gates")),
                 }
             )
-        elif event_model == "mcp_tool_result" and int(row.get("event_count") or 0) == 0:
+        elif (
+            source.enabled
+            and event_model == "mcp_tool_result"
+            and int(row.get("event_count") or 0) == 0
+        ):
             items.append(
                 {
                     "reason": "enabled_mcp_source_without_tool_result",
@@ -569,7 +598,9 @@ def _build_daily_review_items(
                     "detail": "Repository metadata exists but has no metadata_checked_at timestamp.",
                 }
             )
-        metadata_gaps = _list(repository_metadata.get("missing_fields")) or _repository_metadata_gaps(source)
+        metadata_gaps = _list(
+            repository_metadata.get("missing_fields")
+        ) or _repository_metadata_gaps(source)
         if metadata_gaps:
             items.append(
                 {
@@ -708,7 +739,6 @@ def _is_mcp_server_source(source: Source) -> bool:
     }
 
 
-
 def _env_required_names(source: Source) -> list[str]:
     raw = source.config.get("env")
     if isinstance(raw, Mapping):
@@ -719,7 +749,11 @@ def _env_required_names(source: Source) -> list[str]:
 def _env_resolved_values(source: Source) -> dict[str, str]:
     raw = source.config.get("env")
     if isinstance(raw, list):
-        return {str(name).strip(): os.environ.get(str(name).strip(), "") for name in raw if str(name).strip()}
+        return {
+            str(name).strip(): os.environ.get(str(name).strip(), "")
+            for name in raw
+            if str(name).strip()
+        }
     if not isinstance(raw, Mapping):
         return {}
 
@@ -1010,4 +1044,3 @@ def _parse_datetime(value: str) -> datetime | None:
 
 def _age_days(generated_at: datetime, event_at: datetime) -> float:
     return max(0.0, (_as_utc(generated_at) - _as_utc(event_at)).total_seconds() / 86400)
-

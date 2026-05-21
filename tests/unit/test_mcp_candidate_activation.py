@@ -8,7 +8,7 @@ import pytest
 from radar.config_loader import load_category_config
 from radar.exceptions import NetworkError
 from radar.mcp_source import collect_mcp_server_source, parse_mcp_source_config
-
+from radar.models import Source
 
 FAKE_MCP_SERVER = r"""
 import json
@@ -51,7 +51,7 @@ for raw in sys.stdin:
 HANGING_MCP_SERVER = "import time; time.sleep(30)"
 
 
-def _ready_candidate():
+def _ready_candidate() -> Source:
     category = load_category_config("finance_tax_mcp")
     matches = [
         source
@@ -63,13 +63,15 @@ def _ready_candidate():
     return matches[0]
 
 
-def test_runtime_timeout_candidate_keeps_allowlisted_command_contract() -> None:
+def test_permanently_disabled_candidate_keeps_allowlisted_command_contract() -> None:
     source = _ready_candidate()
 
     assert source.enabled is False
-    assert source.config["activation_status"] == "blocked_runtime_timeout"
+    assert source.config["activation_status"] == "permanently_disabled_runtime_unstable"
     assert source.config["runtime_timeout_confirmed_at"] == "2026-04-29T04:36:46+00:00"
-    assert "reliable_stdio_initialize_required" in source.config["activation_gates"]
+    assert source.config["runtime_resolution_status"] == "permanently_disabled_runtime_unstable"
+    assert source.config["disabled_reason"] == "upstream_stdio_initialize_timeout"
+    assert source.config["activation_gates"] == []
     config = parse_mcp_source_config(source, timeout=10, limit=5)
 
     assert config.transport == "stdio"

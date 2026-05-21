@@ -94,7 +94,7 @@ sources:
       - "network_read"
       - "user_account_scope"
       - "write_or_mutation_possible"
-    notes: "Command resolved from upstream README on 2026-04-30; source remains disabled until KIS account secrets, financial-action risk review, registry cross-check, and fake transport smoke validation are completed."
+    notes: "Command, risk scope, env documentation, registry status, and fake transport smoke evidence are recorded. Source remains disabled until KIS account secrets are available and a bounded real transport smoke test passes."
     config:
       repository: "migusdn/KIS_MCP_Server"
       source_seed: "awesome-mcp-korea"
@@ -113,16 +113,16 @@ sources:
       package_registry_crosscheck_status: "not_applicable_local_checkout_command"
       package_registry_crosscheck_artifact: "_workspace/2026-05-07_mcp_registry_crosscheck_gate_closure.json"
       package_registry_crosscheck_source: "not_applicable_local_checkout_command"
-      metadata_checked_at: '2026-05-07T05:20:56+00:00'
+      metadata_checked_at: '2026-05-21T15:31:54+00:00'
       metadata_refresh_status: passed
-      metadata_refresh_artifact: _workspace/2026-05-07_mcp_github_repository_metadata_refresh.json
+      metadata_refresh_artifact: _workspace/2026-05-21_mcp_github_repository_metadata_refresh.json
       metadata_refresh_source: github_rest_api
       github_archived: false
       github_disabled: false
       github_license: MIT
       github_pushed_at: '2026-05-04T08:50:53Z'
       github_default_branch: master
-      github_stars: 20
+      github_stars: 21
       github_head_sha: b04ee148b63d1045854a01e4848475d9beef91ca
       docs_advisory_checked_at: '2026-04-30T05:06:52+00:00'
       docs_advisory_audit_status: passed
@@ -235,16 +235,16 @@ sources:
       production_monitoring_source: "activation_gate_config_review"
       production_monitoring_activation_condition: "source_enabled_after_real_transport_smoke_pass_and_remaining_gates_clear"
       production_monitoring_deferred_reason: "source_disabled_with_remaining_activation_gates"
-      metadata_checked_at: '2026-05-07T05:20:56+00:00'
+      metadata_checked_at: '2026-05-21T15:31:54+00:00'
       metadata_refresh_status: passed
-      metadata_refresh_artifact: _workspace/2026-05-07_mcp_github_repository_metadata_refresh.json
+      metadata_refresh_artifact: _workspace/2026-05-21_mcp_github_repository_metadata_refresh.json
       metadata_refresh_source: github_rest_api
       github_archived: false
       github_disabled: false
       github_license: MIT
       github_pushed_at: '2025-09-20T08:53:44Z'
       github_default_branch: main
-      github_stars: 15
+      github_stars: 17
       github_head_sha: e3145c1d2d87651ad973656389661636b8a6a48f
       docs_advisory_checked_at: '2026-04-30T05:06:52+00:00'
       docs_advisory_audit_status: passed

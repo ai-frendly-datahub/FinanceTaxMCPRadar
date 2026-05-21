@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
@@ -41,8 +42,7 @@ class SearchIndex:
 
     def _create_schema(self) -> None:
         conn = self._connection()
-        conn.executescript(
-            """
+        conn.executescript("""
             CREATE TABLE IF NOT EXISTS documents (
                 link TEXT PRIMARY KEY,
                 title TEXT NOT NULL,
@@ -69,16 +69,16 @@ class SearchIndex:
                 INSERT INTO documents_fts(rowid, title, body)
                 VALUES (new.rowid, new.title, new.body);
             END;
-            """
-        )
+            """)
         conn.commit()
 
     def upsert(self, link: str, title: str, body: str) -> None:
         conn = self._connection()
+        indexed_body = _augment_text_for_search(body)
         conn.execute("DELETE FROM documents WHERE link = ?", (link,))
         conn.execute(
             "INSERT INTO documents(link, title, body) VALUES (?, ?, ?)",
-            (link, title, body),
+            (link, title, indexed_body),
         )
         conn.commit()
 
@@ -109,3 +109,18 @@ class SearchIndex:
             return
         self._conn.close()
         self._conn = None
+
+
+_CJK_RUN_RE = re.compile(r"[\u3130-\u318f\uac00-\ud7a3\u4e00-\u9fff]+")
+
+
+def _augment_text_for_search(text: str) -> str:
+    tokens: set[str] = set()
+    for match in _CJK_RUN_RE.finditer(text):
+        run = match.group(0)
+        for width in range(2, min(5, len(run) + 1)):
+            for start in range(0, len(run) - width + 1):
+                tokens.add(run[start : start + width])
+    if not tokens:
+        return text
+    return f"{text}\n{' '.join(sorted(tokens))}"

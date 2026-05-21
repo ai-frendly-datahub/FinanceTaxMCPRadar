@@ -3,14 +3,17 @@ from __future__ import annotations
 import importlib.util
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from types import ModuleType
+from typing import Any, cast
 
+import pytest
 import yaml
 
 from radar.models import Article
 from radar.storage import RadarStorage
 
 
-def _load_script_module():
+def _load_script_module() -> ModuleType:
     script_path = Path(__file__).resolve().parents[2] / "scripts" / "check_quality.py"
     spec = importlib.util.spec_from_file_location("mcp_check_quality_script", script_path)
     assert spec is not None and spec.loader is not None
@@ -21,7 +24,7 @@ def _load_script_module():
 
 def test_generate_quality_artifacts_uses_latest_stored_checkpoint(
     tmp_path: Path,
-    capsys,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     project_root = tmp_path
     (project_root / "config" / "categories").mkdir(parents=True)
@@ -104,7 +107,7 @@ def test_generate_quality_artifacts_uses_latest_stored_checkpoint(
             [article_time.replace(tzinfo=None), "https://github.com/example/KIS_MCP_Server"],
         )
 
-    module = _load_script_module()
+    module = cast(Any, _load_script_module())
     paths, report, articles = module.generate_quality_artifacts(project_root)
 
     assert Path(paths["latest"]).exists()
@@ -120,3 +123,57 @@ def test_generate_quality_artifacts_uses_latest_stored_checkpoint(
     assert "quality_report=" in captured.out
     assert "tracked_sources=1" in captured.out
     assert "mcp_signal_event_count=2" in captured.out
+
+
+def test_check_raw_jsonl_duplicates_reports_duplicate_links(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    raw_dir = tmp_path / "data" / "raw"
+    raw_file = raw_dir / "2026-05-19" / "source.jsonl"
+    raw_file.parent.mkdir(parents=True)
+    raw_file.write_text(
+        "\n".join(
+            [
+                '{"title": "one", "link": "https://example.com/a"}',
+                '{"title": "two", "link": "https://example.com/b"}',
+                '{"title": "one newer", "link": "https://example.com/a"}',
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    module = cast(Any, _load_script_module())
+    issues = module.check_raw_jsonl_duplicates(raw_dir)
+
+    captured = capsys.readouterr()
+    assert len(issues) == 1
+    assert issues[0]["duplicate_links"] == ["https://example.com/a"]
+    assert "duplicate_links=1" in captured.out
+
+
+def test_check_raw_jsonl_duplicates_accepts_unique_links(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    raw_dir = tmp_path / "data" / "raw"
+    raw_file = raw_dir / "2026-05-21" / "source.jsonl"
+    raw_file.parent.mkdir(parents=True)
+    raw_file.write_text(
+        "\n".join(
+            [
+                '{"title": "one", "link": "https://example.com/a"}',
+                '{"title": "two", "link": "https://example.com/b"}',
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    module = cast(Any, _load_script_module())
+    issues = module.check_raw_jsonl_duplicates(raw_dir)
+
+    captured = capsys.readouterr()
+    assert issues == []
+    assert "No raw JSONL duplicate links found" in captured.out
