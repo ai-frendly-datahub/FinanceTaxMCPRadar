@@ -1,6 +1,6 @@
 {
   "category": "finance_tax_mcp",
-  "generated_at": "2026-05-21T16:28:18.303122+00:00",
+  "generated_at": "2026-05-21T16:32:30.705855+00:00",
   "scope_note": "finance_tax_mcp treats the awesome-mcp-korea section as a T4 community directory seed. Repository metadata, API credential scope, and security context remain separate enrichment layers until archived, license, and advisory fields are collected.",
   "summary": {
     "total_sources": 3,
