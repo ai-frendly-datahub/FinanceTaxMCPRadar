@@ -9,7 +9,7 @@ import smtplib
 from dataclasses import dataclass
 from datetime import datetime
 from email.mime.text import MIMEText
-from typing import Protocol
+from typing import Any, Protocol
 
 import requests
 import structlog
@@ -29,7 +29,7 @@ class NotificationPayload:
     timestamp: datetime
     report_url: str | None = None
 
-    def to_dict(self) -> dict[str, object]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert payload to dictionary for JSON serialization."""
         return {
             "category_name": self.category_name,
